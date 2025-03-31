@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35919.96 d17.13
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassroomConnect", "ClassroomConnect\ClassroomConnect.csproj", "{18873986-C513-4EA6-A124-DFD8FDD942ED}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{18873986-C513-4EA6-A124-DFD8FDD942ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18873986-C513-4EA6-A124-DFD8FDD942ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18873986-C513-4EA6-A124-DFD8FDD942ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18873986-C513-4EA6-A124-DFD8FDD942ED}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3A059C57-3E6B-4737-884E-EBED00F0482C}
+	EndGlobalSection
+EndGlobal

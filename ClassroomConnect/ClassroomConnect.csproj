@@ -24,4 +24,8 @@
     <ProjectReference Include="..\Classroom.Models\Classroom.Models.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\Content\images\" />
+  </ItemGroup>
+
 </Project>

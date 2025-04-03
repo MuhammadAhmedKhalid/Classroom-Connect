@@ -112,12 +112,27 @@ namespace ClassroomConnect.Areas.Identity.Pages.Account
 
         public async Task OnGetAsync(string returnUrl = null)
         {
+
+            if (User.Identity.IsAuthenticated)
+            {
+                // If the user is already logged in, redirect to home page or another page
+                Response.Redirect("/Home/Index");
+                return;
+            }
+
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
+
+            if (User.Identity.IsAuthenticated)
+            {
+                // If the user is already logged in, redirect to home page or another page
+                return RedirectToAction("Index", "Home");
+            }
+
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)

@@ -2,12 +2,6 @@ html {
   font-size: 14px;
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
@@ -21,52 +15,16 @@ body {
   margin-bottom: 60px;
 }
 
-/* General Reset */
-/*body {
-    font-family: Arial, sans-serif;
-    background-color: #f8f9fa;
-    margin: 0;
-    padding: 0;
-}*/
-
-/* Navbar */
-/*.navbar-brand {
-    font-weight: bold;
-}
-
-.navbar-nav .nav-link {
-    color: white !important;
-}
-
-.navbar-toggler {
-    border: none;
-}*/
-
-/* Hero Section */
 .hero-section {
     padding: 80px 0;
-/*    background-color: white;*/
 }
 
-/*    .hero-section h1 {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #333;
-    }
-
-    .hero-section p {
-        font-size: 1.2rem;
-        color: #666;
-    }
-
-    .hero-section .btn-primary {
-        padding: 10px 20px;
-        font-size: 1.2rem;
-        border-radius: 25px;
-    }*/
-
-/* Responsive */
 @media (max-width: 768px) {
+
+    html {
+        font-size: 16px;
+    }
+
     .hero-section {
         text-align: center;
     }

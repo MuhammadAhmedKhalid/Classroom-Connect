@@ -39,6 +39,15 @@
                                 </a>
                             </div>
                             <small class="text-muted">
+                                Class Code:
+                                <strong>
+                                    <a href="javascript:void(0);"
+                                       class="text-decoration-underline class-code"
+                                       data-code="@item.ClassCode"
+                                       title="Click to copy">
+                                        @item.ClassCode
+                                    </a>
+                                </strong><br>
                                 Created On: @item.CreatedAt.ToString()
                             </small>
                         </div>
@@ -54,3 +63,25 @@
         </div>
     }
 </div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.class-code').forEach(element => {
+            element.addEventListener('click', function() {
+                const code = this.getAttribute('data-code');
+                navigator.clipboard.writeText(code).then(() => {
+                    // Show temporary feedback
+                    const originalText = this.textContent;
+                    this.innerHTML = `<i class="bi bi-check-circle-fill text-success"></i> Copied!`;
+
+                    // Revert after 2 seconds
+                    setTimeout(() => {
+                        this.textContent = originalText;
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy: ', err);
+                });
+            });
+        });
+    </script>
+}

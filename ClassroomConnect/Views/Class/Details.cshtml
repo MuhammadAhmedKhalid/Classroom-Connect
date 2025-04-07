@@ -7,7 +7,7 @@
 <h1>Details</h1>
 
 <div>
-    <h4>Item</h4>
+    <h4>Class</h4>
     <hr />
     <dl class="row">
         <dt class="col-sm-2">
@@ -22,15 +22,46 @@
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Description)
         </dd>
-        <dt class="col-sm-2">
-            Created On
-            </dt>
+        <dt class="col-sm-2">Class Code</dt>
+        <dd class="col-sm-10">
+            <div class="input-group" style="max-width: 300px;">
+                <input type="text" class="form-control" id="classCodeInput" value="@Model.ClassCode" readonly>
+                <button class="btn btn-outline-secondary" type="button" id="copyButton">
+                    <i class="bi bi-clipboard"></i> Copy
+                </button>
+            </div>
+            <small class="text-muted">Use this code to join the class</small>
+        </dd>
+        <dt class="col-sm-2">Created On</dt>
         <dd class="col-sm-10">
             @Model.CreatedAt.ToString()
         </dd>
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
 </div>
+
+@section Scripts {
+    <script>
+        document.getElementById('copyButton').addEventListener('click', function() {
+            const classCodeInput = document.getElementById('classCodeInput');
+            classCodeInput.select();
+            document.execCommand('copy');
+
+            // Change button appearance temporarily
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="bi bi-check"></i> Copied!';
+            this.classList.remove('btn-outline-secondary');
+            this.classList.add('btn-success');
+
+            // Revert after 2 seconds
+            setTimeout(() => {
+                this.innerHTML = originalText;
+                this.classList.remove('btn-success');
+                this.classList.add('btn-outline-secondary');
+            }, 2000);
+        });
+    </script>
+}

@@ -12,7 +12,10 @@ namespace Classroom.Models
         public required string Name { get; set; }
 
         [Display(Name = "Description")]
-        public string? Description { get; set; } // Now properly nullable
+        public string? Description { get; set; } 
+
+        [StringLength(8, MinimumLength = 5)]
+        public string? ClassCode { get; set; } = null!; // Will be generated automatically
 
         public DateTime? CreatedAt { get; set; } = DateTime.Now;
 

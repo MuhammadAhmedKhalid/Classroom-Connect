@@ -3,12 +3,15 @@ using Classroom.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using System.Security.Cryptography;
 
 namespace ClassroomConnect.Controllers
 {
     public class ClassController(ApplicationDbContext db) : Controller
     {
         private readonly ApplicationDbContext _db = db;
+
+        private const string AllowedChars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
         // GET: Classes
         public IActionResult Index()
@@ -42,10 +45,11 @@ namespace ClassroomConnect.Controllers
             if (ModelState.IsValid)
             {
                 @class.Description ??= string.Empty;
-
-                // Set creation metadata
                 @class.CreatedAt = DateTime.Now;
                 @class.CreatedById = User.FindFirstValue(ClaimTypes.NameIdentifier); // Gets current user's ID
+
+                // Generate unique class code
+                @class.ClassCode = GenerateUniqueClassCode();
 
                 _db.Add(@class);
                 _db.SaveChanges();
@@ -128,5 +132,28 @@ namespace ClassroomConnect.Controllers
         {
             return _db.Classes.Any(e => e.Id == id);
         }
+
+        private string GenerateUniqueClassCode()
+        {
+            using var rng = RandomNumberGenerator.Create();
+            string code;
+            bool isUnique;
+
+            do
+            {
+                var codeLength = RandomNumberGenerator.GetInt32(5, 9); // 5-8
+
+                var randomBytes = new byte[codeLength];
+                rng.GetBytes(randomBytes);
+
+                code = new string(randomBytes.Select(b => AllowedChars[b % AllowedChars.Length]).ToArray());
+
+                isUnique = !_db.Classes.Any(c => c.ClassCode == code);
+            }
+            while (!isUnique);
+
+            return code;
+        }
+
     }
 }

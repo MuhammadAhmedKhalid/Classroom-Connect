@@ -1,7 +1,6 @@
 ﻿using Classroom.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection.Emit;
 
 namespace Classroom.DataAccess.Data
 {
@@ -12,6 +11,7 @@ namespace Classroom.DataAccess.Data
 
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<Class> Classes { get; set; }
+        public DbSet<ClassMember> ClassMembers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

@@ -15,7 +15,7 @@ namespace Classroom.Models
         public string? Description { get; set; } 
 
         [StringLength(8, MinimumLength = 5)]
-        public string? ClassCode { get; set; } = null!; // Will be generated automatically
+        public string? ClassCode { get; set; } = null!; 
 
         public DateTime? CreatedAt { get; set; } = DateTime.Now;
 

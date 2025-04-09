@@ -2,18 +2,28 @@
 using Classroom.Models;
 using Classroom.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace ClassroomConnect.Controllers
 {
-    public class ClassJoinController(ApplicationDbContext db) : Controller
+    public class JoinedClassController(ApplicationDbContext db) : Controller
     {
         private readonly ApplicationDbContext _db = db;
 
         public IActionResult Index()
         {
             ViewData["Title"] = "Joined Classes";
-            return View();
+
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var joinedClasses = _db.ClassMembers
+                .Where(cm => cm.UserId == currentUserId)
+                .Include(cm => cm.Class)
+                .Select(cm => cm.Class)
+                .ToList();
+
+            return View(joinedClasses);
         }
 
         public IActionResult Join()
@@ -24,7 +34,7 @@ namespace ClassroomConnect.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Join(JoinClassVM joinClassVM)
+        public IActionResult Join(JoinClassFormVM joinClassVM)
         {
             if (ModelState.IsValid)
             {

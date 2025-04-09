@@ -2,7 +2,7 @@
 
 namespace Classroom.Models.ViewModels
 {
-    public class JoinClassVM
+    public class JoinClassFormVM
     {
         [Required(ErrorMessage = "Class Code is required.")]
         [StringLength(8, MinimumLength = 5, ErrorMessage = "Class Code must be between 5 and 8 characters.")]

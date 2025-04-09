@@ -20,7 +20,6 @@ namespace ClassroomConnect.Controllers
             var joinedClasses = _db.ClassMembers
                 .Where(cm => cm.UserId == currentUserId)
                 .Include(cm => cm.Class)
-                .Select(cm => cm.Class)
                 .ToList();
 
             return View(joinedClasses);

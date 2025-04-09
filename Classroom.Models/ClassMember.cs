@@ -6,7 +6,7 @@ namespace Classroom.Models
     public class ClassMember
     {
         [Key]
-        public int ClassMemberId { get; set; } // Primary Key for this linking table
+        public int ClassMemberId { get; set; } 
 
         [ForeignKey("Class")]
         public int ClassId { get; set; }

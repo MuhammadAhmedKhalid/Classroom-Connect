@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Classroom.Models.Class>
+﻿@model IEnumerable<Classroom.Models.ClassMember>
 
 <div class="container">
     <h1 class="mb-4">@ViewData["Title"]</h1>
@@ -17,19 +17,19 @@
                 <div class="col">
                     <div class="card h-100 shadow-sm">
                         <div class="card-body">
-                            <h5 class="card-title">@item.Name</h5>
+                            <h5 class="card-title">@item.Class.Name</h5>
                             <p class="card-text text-muted">
-                                @(string.IsNullOrEmpty(item.Description) ? "No description" : item.Description)
+                                @(string.IsNullOrEmpty(item.Class.Description) ? "No description" : item.Class.Description)
                             </p>
                         </div>
                         <div class="card-footer bg-transparent border-top-0">
                             <div class="d-flex justify-content-end gap-2">
-                                @*<a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                <a asp-controller="Class" asp-action="Details" asp-route-id="@item.ClassId" class="btn btn-sm btn-outline-primary">
                                     <i class="bi bi-eye"></i> View
-                                </a>*@
+                                </a>
                             </div>
                             <small class="text-muted">
-                                Created On: @item.CreatedAt.ToString()
+                                Join Date: @item.JoinedAt.ToString()
                             </small>
                         </div>
                     </div>

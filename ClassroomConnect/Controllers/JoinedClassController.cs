@@ -71,7 +71,7 @@ namespace ClassroomConnect.Controllers
                 _db.ClassMembers.Add(newMembership);
                 _db.SaveChanges();
 
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "JoinedClass");
             }
             return View(joinClassVM);
         }

@@ -1,5 +1,6 @@
 ﻿using Classroom.DataAccess.Data;
 using Classroom.Models;
+using Classroom.Models.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -11,7 +12,7 @@ namespace ClassroomConnect.Controllers
     {
         private readonly ApplicationDbContext _db = db;
 
-        private const string AllowedChars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        private const string AllowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
         #region Endpoints
 
@@ -29,16 +30,31 @@ namespace ClassroomConnect.Controllers
         // GET: Classes/Details/5
         public IActionResult Details(int? id)
         {
+            ViewData["Title"] = "Class Details";
+
             if (id == null) return NotFound();
 
             var @class = _db.Classes.FirstOrDefault(m => m.Id == id);
             if (@class == null) return NotFound();
-            return View(@class);
+
+            var classMembers = _db.ClassMembers
+                .Where(cm => cm.ClassId == @class.Id)
+                .Include(cm => cm.User)
+                .ToList();
+
+            var classDetails = new ClassDetailsVM
+            {
+                Class = @class,
+                ClassMembers = classMembers
+            };
+
+            return View(classDetails);
         }
 
         // GET: Classes/Create
         public IActionResult Create()
         {
+            ViewData["Title"] = "Create Class";
             return View();
         }
         
@@ -68,6 +84,8 @@ namespace ClassroomConnect.Controllers
         // GET: Classes/Edit/5
         public IActionResult Edit(int? id)
         {
+            ViewData["Title"] = "Edit Class";
+
             if (id == null) return NotFound();
             var @class = _db.Classes.Find(id);
             if (@class == null) return NotFound();
@@ -104,6 +122,8 @@ namespace ClassroomConnect.Controllers
         // GET: Classes/Delete/5
         public IActionResult Delete(int? id)
         {
+            ViewData["Title"] = "Delete Class";
+
             if (id == null) return NotFound();
 
             var @class = _db.Classes.FirstOrDefault(m => m.Id == id);

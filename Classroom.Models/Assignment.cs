@@ -13,6 +13,8 @@ namespace Classroom.Models
         [Display(Name = "Due Date")]
         public DateTime? DueDate { get; set; }
 
+        public DateTime? PostedAt { get; set; } = DateTime.Now;
+
         [ForeignKey("Class")]
         public int ClassId { get; set; }
         public Class? Class { get; set; }

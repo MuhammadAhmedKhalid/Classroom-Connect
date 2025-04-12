@@ -28,7 +28,6 @@
     <li class="nav-item">
         <a class="nav-link" id="quizzes-tab" data-bs-toggle="tab" href="#quizzes" role="tab" aria-controls="quizzes" aria-selected="false">Quizzes</a>
     </li>
-    @* You can add more tabs here for other sections like "Announcements", "Grades", etc. *@
 </ul>
 
 <div class="tab-content">
@@ -138,23 +137,22 @@
             </div>
             <hr />
 
-            @* @if (Model.Assignments?.Any() == true) *@
-            @if (!true)
+            @if (Model.Assignments?.Any() == true)
             {
-                @*<div class="list-group">
+                <div class="list-group">
                     @foreach (var assignment in Model.Assignments)
                     {
-                        <a asp-controller="Assignments" asp-action="Details" asp-route-id="@assignment.Id"
+                        <a asp-controller="Assignment" asp-action="Details" asp-route-id="@assignment.Id"
                            class="list-group-item list-group-item-action">
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">@assignment.Title</h5>
-                                <small>Due: @assignment.DueDate.ToString("MMM dd, yyyy")</small>
+                                <small>Due Date: @assignment.DueDate.ToString()</small>
                             </div>
-                            <p class="mb-1">@assignment.Description</p>
-                            <small>Posted: @assignment.CreatedAt.ToString("MMM dd, yyyy")</small>
+                            <p class="mb-1">@assignment.Instructions</p>
+                            <small>Posted: @assignment.PostedAt.ToString()</small>
                         </a>
                     }
-                </div>*@
+                </div>
             }
             else
             {

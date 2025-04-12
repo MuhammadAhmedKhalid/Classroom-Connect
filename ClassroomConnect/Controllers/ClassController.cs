@@ -42,10 +42,13 @@ namespace ClassroomConnect.Controllers
                 .Include(cm => cm.User)
                 .ToList();
 
+            var assignments = _db.Assignments.Where(a => a.ClassId == @class.Id).ToList();
+
             var classDetails = new ClassDetailsVM
             {
                 Class = @class,
-                ClassMembers = classMembers
+                ClassMembers = classMembers,
+                Assignments = assignments
             };
 
             return View(classDetails);

@@ -130,7 +130,7 @@
                 @if (isCreator)
                 {
                     <a 
-                        @* asp-controller="Assignments" asp-action="Create" *@
+                        asp-controller="Assignment" asp-action="Create"
                         asp-route-classId="@Model.Class?.Id" class="btn btn-sm btn-success">
                         <i class="bi bi-plus"></i> New Assignment
                     </a>

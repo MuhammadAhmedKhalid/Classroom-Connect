@@ -6,5 +6,6 @@ namespace Classroom.Models.ViewModels
     {
         public Class? Class { get; set; }
         public List<ClassMember>? ClassMembers { get; set; }
+        // Assignments
     }
 }

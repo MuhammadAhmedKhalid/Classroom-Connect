@@ -12,6 +12,7 @@ namespace Classroom.DataAccess.Data
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<Class> Classes { get; set; }
         public DbSet<ClassMember> ClassMembers { get; set; }
+        public DbSet<Assignment> Assignments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

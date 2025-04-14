@@ -29,7 +29,7 @@
                 }
                 else
                 {
-                    <form method="post" enctype="multipart/form-data" asp-action="Submission" asp-route-id="@Model.Id" class="d-flex align-items-center gap-2">
+                    <form method="post" enctype="multipart/form-data" asp-controller="AssignmentSubmission" asp-action="Submission" asp-route-id="@Model.Id" class="d-flex align-items-center gap-2">
                         @Html.AntiForgeryToken()
                         <label for="WordDocument" class="form-label mb-0">Attach File:</label>
                         <input type="file" class="form-control form-control-sm w-auto" id="WordDocument" name="WordDocument" accept=".doc,.docx" required />
@@ -40,10 +40,7 @@
             }
             else
             {
-                <a 
-                    @* asp-action="Index" asp-controller="Submission"  *@
-                    asp-route-assignmentId="@Model.Id" class="btn btn-primary btn-sm">View Submissions
-                </a>
+                <a asp-action="Details" asp-controller="AssignmentSubmission" asp-route-assignmentId="@Model.Id" class="btn btn-primary btn-sm">View Submissions</a>
             }
         </div>
 

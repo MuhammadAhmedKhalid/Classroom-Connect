@@ -1,6 +1,7 @@
 ﻿using Classroom.DataAccess.Data;
 using Classroom.Models;
 using Classroom.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -8,6 +9,7 @@ using System.Security.Cryptography;
 
 namespace ClassroomConnect.Controllers
 {
+    [Authorize]
     public class ClassController(ApplicationDbContext db) : Controller
     {
         private readonly ApplicationDbContext _db = db;

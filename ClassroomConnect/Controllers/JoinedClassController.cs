@@ -1,12 +1,14 @@
 ﻿using Classroom.DataAccess.Data;
 using Classroom.Models;
 using Classroom.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace ClassroomConnect.Controllers
 {
+    [Authorize]
     public class JoinedClassController(ApplicationDbContext db) : Controller
     {
         private readonly ApplicationDbContext _db = db;

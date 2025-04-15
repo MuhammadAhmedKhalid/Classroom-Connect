@@ -1,11 +1,13 @@
 ﻿using Classroom.DataAccess.Data;
 using Classroom.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace ClassroomConnect.Controllers
 {
+    [Authorize]
     public class AssignmentController(ApplicationDbContext db) : Controller
     {
 
@@ -31,7 +33,7 @@ namespace ClassroomConnect.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create([Bind("Title,Instructions,DueDate,ClassId")] Assignment assignment)
+        public IActionResult Create([Bind("Title,Instructions,DueDate,CloseDate,ClassId")] Assignment assignment)
         {
             if (ModelState.IsValid)
             {
@@ -59,8 +61,17 @@ namespace ClassroomConnect.Controllers
             var assignment = GetAssignment(id);
 
             ViewBag.HasSubmitted = _db.AssignmentSubmissions.Any(s => s.AssignmentId == id && s.UserId == currentUserId);
+            ViewBag.IsClosed = IsAssignmentClosed(assignment);
 
             return View(assignment);
+        }
+
+        [HttpGet]
+        public JsonResult IsAssignmentClosed(int id)
+        {
+            var assignment = _db.Assignments.Find(id);
+            bool isClosed = IsAssignmentClosed(assignment);
+            return Json(new { isClosed });
         }
 
         #region Helper methods
@@ -70,6 +81,11 @@ namespace ClassroomConnect.Controllers
             return _db.Assignments
                 .Include(a => a.Class)
                 .FirstOrDefault(m => m.Id == id);
+        }
+
+        private bool IsAssignmentClosed(Assignment? assignment)
+        {
+            return assignment?.CloseDate.HasValue == true && assignment.CloseDate < DateTime.Now;
         }
 
         #endregion

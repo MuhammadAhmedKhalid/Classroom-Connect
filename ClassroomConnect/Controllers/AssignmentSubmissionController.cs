@@ -1,5 +1,6 @@
 ﻿using Classroom.DataAccess.Data;
 using Classroom.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,7 @@ using System.Security.Claims;
 
 namespace ClassroomConnect.Controllers
 {
+    [Authorize]
     public class AssignmentSubmissionController(ApplicationDbContext db, IWebHostEnvironment webHostEnvironment) : Controller
     {
 
@@ -38,6 +40,16 @@ namespace ClassroomConnect.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Submission(int id, IFormFile wordDocument)
         {
+            var assignment = _db.Assignments.Find(id);
+            bool isSubmissionClosed = assignment?.CloseDate.HasValue == true && assignment.CloseDate < DateTime.Now; ;
+            
+            if (isSubmissionClosed)
+            {
+                ModelState.AddModelError("WordDocument", "This assignment is now closed for submissions.");
+
+                return RedirectToAction("Details", "Assignment", new { id });
+            }
+
             if (wordDocument == null || wordDocument.Length == 0)
             {
                 ModelState.AddModelError("WordDocument", "Please select a file.");

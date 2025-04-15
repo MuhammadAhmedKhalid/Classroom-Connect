@@ -146,7 +146,11 @@
                            class="list-group-item list-group-item-action">
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">@assignment.Title</h5>
-                                <small>Due Date: @assignment.DueDate.ToString()</small>
+                                <small>
+                                    Due Date: @assignment.DueDate.ToString() <br>
+                                    Close Date: @assignment.CloseDate.ToString()
+                                </small>
+
                             </div>
                             <p class="mb-1">@assignment.Instructions</p>
                             <small>Posted: @assignment.PostedAt.ToString()</small>

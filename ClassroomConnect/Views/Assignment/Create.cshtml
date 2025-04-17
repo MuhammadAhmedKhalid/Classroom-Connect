@@ -32,7 +32,7 @@
 
             <div class="form-group">
                 <label asp-for="CloseDate" class="control-label"></label>
-                <input asp-for="CloseDate" class="form-control" type="datetime-local" />
+                <input asp-for="CloseDate" class="form-control" type="datetime-local" readonly />
                 <span asp-validation-for="CloseDate" class="text-danger"></span>
             </div>
 
@@ -47,4 +47,17 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const dueDateInput = document.getElementById('DueDate');
+            const closeDateInput = document.getElementById('CloseDate');
+
+            dueDateInput.addEventListener('change', function () {
+                closeDateInput.readOnly = !this.value;
+                if (!this.value) {
+                    closeDateInput.value = '';
+                }
+            });
+        });
+    </script>
 }

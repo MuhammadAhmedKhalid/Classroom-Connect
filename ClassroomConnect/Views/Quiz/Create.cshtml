@@ -1,5 +1,9 @@
 ﻿@model Classroom.Models.Quiz
 
+@{
+    ViewData["Title"] ??= "Create Quiz";
+}
+
 <h1>@ViewData["Title"]</h1>
 
 <hr />
@@ -8,32 +12,32 @@
     <div class="col-md-8">
         <form asp-action="Create">
             @Html.AntiForgeryToken()
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div asp-validation-summary="All" class="text-danger"></div>
 
             <input asp-for="ClassId" type="hidden" />
 
             <div class="form-group">
                 <label asp-for="Title" class="control-label"></label>
                 <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
+                @* <span asp-validation-for="Title" class="text-danger"></span> *@
             </div>
 
             <div class="form-group">
                 <label asp-for="Instructions" class="control-label"></label>
                 <textarea asp-for="Instructions" class="form-control" style="height: 100px;"></textarea>
-                <span asp-validation-for="Instructions" class="text-danger"></span>
+                @* <span asp-validation-for="Instructions" class="text-danger"></span> *@
             </div>
 
             <div class="form-group">
                 <label asp-for="DueDate" class="control-label"></label>
                 <input asp-for="DueDate" class="form-control" type="datetime-local" />
-                <span asp-validation-for="DueDate" class="text-danger"></span>
+                @* <span asp-validation-for="DueDate" class="text-danger"></span> *@
             </div>
 
             <div class="form-group">
                 <label asp-for="CloseDate" class="control-label"></label>
-                <input asp-for="CloseDate" class="form-control" type="datetime-local" />
-                <span asp-validation-for="CloseDate" class="text-danger"></span>
+                <input asp-for="CloseDate" class="form-control" type="datetime-local" readonly />
+                @* <span asp-validation-for="CloseDate" class="text-danger"></span> *@
             </div>
 
             <div id="questions-container">
@@ -61,10 +65,8 @@
             const addQuestionButton = document.getElementById('add-question-button');
             const questionsContainer = document.getElementById('questions-container');
 
-            closeDateInput.disabled = !dueDateInput.value;
-
             dueDateInput.addEventListener('change', function () {
-                closeDateInput.disabled = !this.value;
+                closeDateInput.readOnly = !this.value;
                 if (!this.value) {
                     closeDateInput.value = '';
                 }
@@ -77,16 +79,19 @@
                 const questionDiv = document.createElement('div');
                 questionDiv.className = 'form-group question-group';
                 questionDiv.innerHTML = `
-                    <label for="Question_${questionCount}">Question ${questionCount}</label>
-                    <input type="text" id="Question_${questionCount}" name="Questions[${questionCount - 1}].Text" class="form-control" />
-                    <span class="text-danger" data-valmsg-for="Questions[${questionCount - 1}].Text"></span>
-                    <label for="Answer_${questionCount}">Correct Answer</label>
-                    <input type="text" id="Answer_${questionCount}" name="Questions[${questionCount - 1}].CorrectAnswer" class="form-control" />
-                    <span class="text-danger" data-valmsg-for="Questions[${questionCount - 1}].CorrectAnswer"></span>
+                    <div class="form-group">
+                        <label for="Question_${questionCount}">Question ${questionCount}</label>
+                        <input type="text" id="Question_${questionCount}" name="Questions[${questionCount - 1}].Text" class="form-control" />
+                        <span class="text-danger" data-valmsg-for="Questions[${questionCount - 1}].Text"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="Answer_${questionCount}">Correct Answer</label>
+                        <input type="text" id="Answer_${questionCount}" name="Questions[${questionCount - 1}].CorrectAnswer" class="form-control" />
+                        <span class="text-danger" data-valmsg-for="Questions[${questionCount - 1}].CorrectAnswer"></span>
+                    </div>
                 `;
                 questionsContainer.appendChild(questionDiv);
 
-                // Add client-side validation dynamically.
                 const questionInput = questionDiv.querySelector(`#Question_${questionCount}`);
                 questionInput.addEventListener('input', () => {
                     const span = questionDiv.querySelector(`[data-valmsg-for="Questions[${questionCount - 1}].Text"]`);

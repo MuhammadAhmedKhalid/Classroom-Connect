@@ -15,6 +15,7 @@ namespace Classroom.DataAccess.Data
         public DbSet<Assignment> Assignments { get; set; }
         public DbSet<AssignmentSubmission> AssignmentSubmissions { get; set; }
         public DbSet<Quiz> Quizzes { get; set; }
+        public DbSet<QuizQuestion> QuizQuestions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

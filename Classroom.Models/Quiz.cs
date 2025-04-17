@@ -23,5 +23,7 @@ namespace Classroom.Models
         [ForeignKey("Class")]
         public int ClassId { get; set; }
         public Class? Class { get; set; }
+
+        public List<QuizQuestion> Questions { get; set; } = new List<QuizQuestion>();
     }
 }

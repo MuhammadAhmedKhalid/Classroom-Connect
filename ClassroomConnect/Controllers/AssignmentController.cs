@@ -37,6 +37,10 @@ namespace ClassroomConnect.Controllers
         {
             if (ModelState.IsValid)
             {
+
+                if (assignment.DueDate == null)
+                    assignment.CloseDate = null;
+
                 assignment.Instructions ??= string.Empty;
                 assignment.PostedAt = DateTime.Now;
 

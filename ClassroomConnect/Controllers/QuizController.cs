@@ -15,7 +15,8 @@ namespace ClassroomConnect.Controllers
         {
             ViewData["Title"] = "Create Quiz";
 
-            var quiz = new Quiz { 
+            var quiz = new Quiz
+            {
                 Title = "",
                 ClassId = classId
             };
@@ -25,14 +26,19 @@ namespace ClassroomConnect.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create([Bind("Title,Instructions,DueDate,CloseDate,ClassId")] Quiz quiz)
+        public IActionResult Create([Bind("Title,Instructions,DueDate,CloseDate,ClassId, Questions")] Quiz quiz)
         {
             if (ModelState.IsValid)
             {
                 if (quiz.DueDate == null)
                     quiz.CloseDate = null;
 
-                quiz.Instructions ??= string.Empty;
+                if (quiz.Questions.Count == 0)
+                {
+                    ModelState.AddModelError("", "Please add at least one question before creating the quiz.");
+                    return View(quiz);
+                }
+
                 quiz.PostedAt = DateTime.Now;
 
                 _db.Quizzes.Add(quiz);

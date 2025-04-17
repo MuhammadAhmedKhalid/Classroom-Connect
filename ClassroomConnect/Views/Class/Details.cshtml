@@ -173,9 +173,7 @@
                 <h2 class="section-header">Quizzes</h2>
                 @if (isCreator)
                 {
-                    <a 
-                        @* asp-controller="Quizzes" asp-action="Create" *@
-                        asp-route-classId="@Model.Class?.Id" class="btn btn-sm btn-success">
+                    <a asp-controller="Quiz" asp-action="Create" asp-route-classId="@Model.Class?.Id" class="btn btn-sm btn-success">
                         <i class="bi bi-plus"></i> New Quiz
                     </a>
                 }

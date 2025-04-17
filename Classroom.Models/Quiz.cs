@@ -3,11 +3,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Classroom.Models
 {
-    public class Assignment
+    public class Quiz
     {
         public int Id { get; set; }
+
         [Required(ErrorMessage = "Title is required")]
         public required string Title { get; set; }
+
         public string? Instructions { get; set; }
 
         [Display(Name = "Due Date")]
@@ -21,8 +23,5 @@ namespace Classroom.Models
         [ForeignKey("Class")]
         public int ClassId { get; set; }
         public Class? Class { get; set; }
-
-        // add one more column to check if the assignment is submitted on time, or after due date
-        // also if there is no due date then dont allow user to add close date
     }
 }

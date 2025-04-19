@@ -2,6 +2,8 @@
 using Classroom.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace ClassroomConnect.Controllers
 {
@@ -10,6 +12,25 @@ namespace ClassroomConnect.Controllers
     {
 
         private readonly ApplicationDbContext _db = db;
+
+        public IActionResult Details(int? id)
+        {
+            if (id == null) return NotFound();
+
+            ViewData["Title"] = "Quiz Details";
+
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var quiz = GetQuiz(id);
+
+            if (currentUserId == quiz?.Class?.CreatedById)
+                ViewBag.isCreator = true;
+
+            ViewBag.HasSubmitted = IsQuizSubmitted(quiz);
+            ViewBag.IsClosed = IsQuizClosed(quiz);
+
+            return View(quiz);
+        }
 
         public IActionResult Create(int classId)
         {
@@ -50,6 +71,31 @@ namespace ClassroomConnect.Controllers
             }
             return View(quiz);
         }
+
+        #region Helper methods
+
+        private Quiz? GetQuiz(int? id)
+        {
+            Quiz quiz = _db.Quizzes.Include(q => q.Class).FirstOrDefault(q => q.Id == id);
+
+            if (quiz != null)
+                quiz.Questions = _db.QuizQuestions.Where(q => q.QuizId == quiz.Id).ToList();
+
+            return quiz;
+        }
+
+        private bool IsQuizSubmitted(Quiz? quiz)
+        {
+            return false;
+        }
+
+        private bool IsQuizClosed(Quiz? quiz)
+        {
+            return quiz?.CloseDate.HasValue == true 
+                && quiz.CloseDate < DateTime.Now;
+        }
+
+        #endregion
 
     }
 }

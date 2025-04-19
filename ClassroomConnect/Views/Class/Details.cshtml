@@ -180,28 +180,25 @@
             </div>
             <hr />
 
-            @* @if (Model.Quizzes?.Any() == true) *@
-            @if (!true)
+            @if (Model.Quizzes?.Any() == true)
             {
-                @*<div class="list-group">
+                <div class="list-group">
                     @foreach (var quiz in Model.Quizzes)
                     {
-                        <a asp-controller="Quizzes" asp-action="Details" asp-route-id="@quiz.Id"
+                        <a asp-controller="Quiz" asp-action="Details" asp-route-id="@quiz.Id"
                            class="list-group-item list-group-item-action">
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">@quiz.Title</h5>
-                                <span class="badge bg-@(quiz.IsPublished ? "success" : "warning")">
-                                    @(quiz.IsPublished ? "Published" : "Draft")
-                                </span>
+                                <small>
+                                    Due Date: @quiz.DueDate.ToString() <br>
+                                    Close Date: @quiz.CloseDate.ToString()
+                                </small>
                             </div>
-                            <p class="mb-1">@quiz.Description</p>
-                            <div class="d-flex justify-content-between">
-                                <small>Questions: @quiz.Questions.Count</small>
-                                <small>Available: @quiz.AvailableFrom?.ToString("MMM dd, yyyy") - @quiz.AvailableTo?.ToString("MMM dd, yyyy")</small>
-                            </div>
+                            <p class="mb-1">@quiz.Instructions</p>
+                            <small>Posted: @quiz.PostedAt.ToString()</small>
                         </a>
                     }
-                </div>*@
+                </div>
             }
             else
             {

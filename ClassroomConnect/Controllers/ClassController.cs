@@ -45,12 +45,14 @@ namespace ClassroomConnect.Controllers
                 .ToList();
 
             var assignments = _db.Assignments.Where(a => a.ClassId == @class.Id).ToList();
+            var quizzes = _db.Quizzes.Where(q => q.ClassId == @class.Id).ToList();
 
             var classDetails = new ClassDetailsVM
             {
                 Class = @class,
                 ClassMembers = classMembers,
-                Assignments = assignments
+                Assignments = assignments,
+                Quizzes = quizzes
             };
 
             return View(classDetails);

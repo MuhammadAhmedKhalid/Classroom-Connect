@@ -80,7 +80,7 @@ namespace ClassroomConnect.Controllers
 
         #region Helper methods
 
-        private Assignment GetAssignment(int? id)
+        private Assignment? GetAssignment(int? id)
         {
             return _db.Assignments
                 .Include(a => a.Class)

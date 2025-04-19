@@ -1,0 +1,79 @@
+﻿@model Classroom.Models.Quiz
+
+@{
+    var isCreator = ViewBag.isCreator ?? false;
+    var hasSubmitted = ViewBag.HasSubmitted ?? false;
+    var isClosed = ViewBag.IsClosed ?? false;
+}
+
+<h1 class="mb-4">@ViewData["Title"]</h1>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <h2 class="card-title">@Model.Title</h2>
+            @if (isCreator)
+            {
+                <a asp-action="Details" asp-controller="QuizSubmission" asp-route-id="@Model.Id" class="btn btn-outline-primary btn-sm">View Submissions</a>
+            }
+        </div>
+
+        <p class="card-text"><strong>Instructions:</strong> @(string.IsNullOrEmpty(Model.Instructions) ? "No instructions provided." : Model.Instructions)</p>
+        <p class="card-text"><strong>Due Date:</strong> @(Model.DueDate.HasValue ? Model.DueDate.Value.ToString("MMMM dd, yyyy hh:mm tt") : "Not set")</p>
+        <p class="card-text"><strong>Close Date:</strong> @(Model.CloseDate.HasValue ? Model.CloseDate.Value.ToString("MMMM dd, yyyy hh:mm tt") : "Not set")</p>
+        <p class="card-text"><strong>Posted At:</strong> @Model.PostedAt?.ToString("MMMM dd, yyyy hh:mm tt")</p>
+        <p class="card-text"><strong>Class:</strong> @Model.Class?.Name</p>
+    </div>
+</div>
+
+@if (!isCreator)
+{
+    <div class="card mb-4">
+        <div class="card-header">
+            Submit Your Answers
+        </div>
+        <div class="card-body">
+            <div id="submissionArea">
+                @if (hasSubmitted)
+                {
+                    <div class="alert alert-success" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        <strong>Submitted!</strong> You have already submitted this quiz.
+                    </div>
+                }
+                else
+                {
+                    @if (isClosed)
+                    {
+                        <div class="alert alert-warning" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <strong>Closed!</strong> This quiz is now closed for submissions.
+                        </div>
+                    }
+                    else
+                    {
+                        @if (Model.Questions != null && Model.Questions.Any())
+                        {
+                            <form method="post" asp-controller="QuizSubmission" asp-action="SubmitQuiz" asp-route-id="@Model.Id">
+                                @Html.AntiForgeryToken()
+                                @for (int i = 0; i < Model.Questions.Count; i++)
+                                {
+                                    <div class="mb-3">
+                                        <label class="form-label"><strong>Question @(i + 1):</strong> @Model.Questions[i].Text</label>
+                                        <textarea class="form-control" name="Answers[@i]" rows="3" required></textarea>
+                                        <input type="hidden" name="QuestionIds[@i]" value="@Model.Questions[i].Id" />
+                                    </div>
+                                }
+                                <button type="submit" class="btn btn-primary">Submit Answers</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No questions have been added to this quiz yet.</p>
+                        }
+                    }
+                }
+            </div>
+        </div>
+    </div>
+}

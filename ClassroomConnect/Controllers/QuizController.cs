@@ -26,7 +26,7 @@ namespace ClassroomConnect.Controllers
             if (currentUserId == quiz?.Class?.CreatedById)
                 ViewBag.isCreator = true;
 
-            ViewBag.HasSubmitted = IsQuizSubmitted(quiz);
+            ViewBag.HasSubmitted = IsQuizSubmitted(quiz, currentUserId);
             ViewBag.IsClosed = IsQuizClosed(quiz);
 
             return View(quiz);
@@ -76,7 +76,7 @@ namespace ClassroomConnect.Controllers
 
         private Quiz? GetQuiz(int? id)
         {
-            Quiz quiz = _db.Quizzes.Include(q => q.Class).FirstOrDefault(q => q.Id == id);
+            Quiz? quiz = _db.Quizzes.Include(q => q.Class).FirstOrDefault(q => q.Id == id);
 
             if (quiz != null)
                 quiz.Questions = _db.QuizQuestions.Where(q => q.QuizId == quiz.Id).ToList();
@@ -84,9 +84,17 @@ namespace ClassroomConnect.Controllers
             return quiz;
         }
 
-        private bool IsQuizSubmitted(Quiz? quiz)
+        private bool IsQuizSubmitted(Quiz? quiz, string userId)
         {
-            return false;
+            List<QuizSubmission> quizSubmissions = _db.QuizSubmissions.ToList();
+
+            for(int i = 0; i < quizSubmissions.Count; i++)
+            {
+                System.Diagnostics.Debug.WriteLine("Quiz Id: " + quizSubmissions[i].QuizId);
+                System.Diagnostics.Debug.WriteLine("User Id: " + quizSubmissions[i].UserId);
+            }
+
+            return _db.QuizSubmissions.Any(q => q.QuizId == quiz.Id && q.UserId.Equals(userId));
         }
 
         private bool IsQuizClosed(Quiz? quiz)

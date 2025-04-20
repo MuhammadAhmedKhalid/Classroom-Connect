@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Views\QuizSubmission\" />
     <Folder Include="wwwroot\Content\images\" />
   </ItemGroup>
 

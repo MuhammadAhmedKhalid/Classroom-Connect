@@ -4,6 +4,7 @@ using Classroom.DataAccess.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Classroom.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250419222701_addQuizSubmissionTableToDb")]
+    partial class addQuizSubmissionTableToDb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -262,30 +265,6 @@ namespace Classroom.DataAccess.Migrations
                     b.ToTable("Quizzes");
                 });
 
-            modelBuilder.Entity("Classroom.Models.QuizAnswer", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AnswerText")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("QuestionId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("QuizSubmissionId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("QuizSubmissionId");
-
-                    b.ToTable("QuizAnswers");
-                });
-
             modelBuilder.Entity("Classroom.Models.QuizQuestion", b =>
                 {
                     b.Property<int>("Id")
@@ -300,6 +279,9 @@ namespace Classroom.DataAccess.Migrations
                     b.Property<int>("QuizId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("QuizSubmissionId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Text")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -307,6 +289,8 @@ namespace Classroom.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("QuizId");
+
+                    b.HasIndex("QuizSubmissionId");
 
                     b.ToTable("QuizQuestions");
                 });
@@ -536,17 +520,6 @@ namespace Classroom.DataAccess.Migrations
                     b.Navigation("Class");
                 });
 
-            modelBuilder.Entity("Classroom.Models.QuizAnswer", b =>
-                {
-                    b.HasOne("Classroom.Models.QuizSubmission", "QuizSubmission")
-                        .WithMany()
-                        .HasForeignKey("QuizSubmissionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("QuizSubmission");
-                });
-
             modelBuilder.Entity("Classroom.Models.QuizQuestion", b =>
                 {
                     b.HasOne("Classroom.Models.Quiz", "Quiz")
@@ -554,6 +527,10 @@ namespace Classroom.DataAccess.Migrations
                         .HasForeignKey("QuizId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Classroom.Models.QuizSubmission", null)
+                        .WithMany("Questions")
+                        .HasForeignKey("QuizSubmissionId");
 
                     b.Navigation("Quiz");
                 });
@@ -627,6 +604,11 @@ namespace Classroom.DataAccess.Migrations
                 });
 
             modelBuilder.Entity("Classroom.Models.Quiz", b =>
+                {
+                    b.Navigation("Questions");
+                });
+
+            modelBuilder.Entity("Classroom.Models.QuizSubmission", b =>
                 {
                     b.Navigation("Questions");
                 });

@@ -1,0 +1,35 @@
+﻿@model Classroom.Models.ViewModels.SubmittedQuizVM
+
+<h1 class="mb-4">@ViewData["Title"]</h1>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <p class="card-text"><strong>Instructions:</strong> @(string.IsNullOrEmpty(Model.quiz.Instructions) ? "No instructions provided." : Model.quiz.Instructions)</p>
+        <p class="card-text"><strong>Due Date:</strong> @(Model.quiz.DueDate.HasValue ? Model.quiz.DueDate.Value.ToString("MMMM dd,<ctrl3348> hh:mm tt") : "Not set")</p>
+        <p class="card-text"><strong>Close Date:</strong> @(Model.quiz.CloseDate.HasValue ? Model.quiz.CloseDate.Value.ToString("MMMM dd,<ctrl3348> hh:mm tt") : "Not set")</p>
+        <p class="card-text"><strong>Posted At:</strong> @Model.quiz.PostedAt?.ToString("MMMM dd, yyyy hh:mm tt")</p>
+        <p class="card-text"><strong>Class:</strong> @Model.quiz.Class?.Name</p>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+         Submitted Answers 
+    </div> 
+    <div class="card-body">
+        @if (Model.quiz.Questions != null && Model.quiz.Questions.Any())
+        {
+            @for (int i = 0; i < Model.quiz.Questions.Count; i++)
+            {
+                <div class="mb-3">
+                    <label class="form-label"><strong>Question @(i + 1):</strong> @Model.quiz.Questions[i].Text</label>
+                    <textarea class="form-control" rows="3" readonly>@Model.Answers[i].AnswerText</textarea>
+                </div>
+            }
+        }
+        else
+        {
+            <p class="text-muted">No questions have been added to this quiz yet.</p>
+        }
+    </div>
+</div>

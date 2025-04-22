@@ -36,6 +36,11 @@ namespace ClassroomConnect.Controllers
         {
             ViewData["Title"] = "Create Quiz";
 
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var @class = _db.Classes.FirstOrDefault(c => c.Id == classId);
+
+            if (@class == null || @class.CreatedById != currentUserId) return RedirectToAction("Index", "Home");
+
             var quiz = new Quiz
             {
                 Title = "",

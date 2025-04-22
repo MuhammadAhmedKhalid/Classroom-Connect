@@ -21,6 +21,11 @@ namespace ClassroomConnect.Controllers
 
             if (assignment == null) return NotFound();
 
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var @class = _db.Classes.FirstOrDefault(c => c.Id == assignment.ClassId);
+
+            if (@class == null || @class.CreatedById != currentUserId) return RedirectToAction("Index", "Home");
+
             var classMembers = _db.ClassMembers
                 .Where(cm => cm.ClassId == assignment.ClassId)
                 .Include(cm => cm.User)
@@ -118,6 +123,8 @@ namespace ClassroomConnect.Controllers
             return File(fileBytes, GetContentType(filePath), fileName);
         }
 
+        #region Helper methods
+        
         private string GetContentType(string path)
         {
             // This class, provided by ASP.NET Core, is designed to map file extensions (like ".jpg", ".pdf", ".txt") to their corresponding MIME content types.
@@ -133,6 +140,7 @@ namespace ClassroomConnect.Controllers
             }
             return contentType;
         }
-
+        
+        #endregion
     }
 }

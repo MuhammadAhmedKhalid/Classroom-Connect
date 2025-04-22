@@ -21,6 +21,11 @@ namespace ClassroomConnect.Controllers
 
             if (quiz == null) return NotFound();
 
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var @class = _db.Classes.FirstOrDefault(c => c.Id == quiz.ClassId);
+
+            if (@class == null || @class.CreatedById != currentUserId) return RedirectToAction("Index", "Home");
+
             quiz.Questions = _db.QuizQuestions.Where(q => q.QuizId == quiz.Id).ToList();
 
             var quizSubmission = _db.QuizSubmissions.FirstOrDefault(qs => qs.UserId.Equals(studentId) && qs.QuizId == quizId);
@@ -43,6 +48,11 @@ namespace ClassroomConnect.Controllers
             var quiz = _db.Quizzes.FirstOrDefault(q => q.Id == id);
 
             if (quiz == null) return NotFound();
+
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var @class = _db.Classes.FirstOrDefault(c => c.Id == quiz.ClassId);
+
+            if (@class == null || @class.CreatedById != currentUserId) return RedirectToAction("Index", "Home");
 
             var classMembers = _db.ClassMembers
                 .Where(cm => cm.ClassId == quiz.ClassId)

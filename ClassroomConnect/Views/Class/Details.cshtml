@@ -101,13 +101,13 @@
                         {
                             <tr>
                                 <td>
-                                    @member.User.Name
+                                    @member.User?.Name
                                     @(member.User == currentUser ? " (Me)" : "")
-                                    @(member.User.Id == Model.Class?.CreatedById ? " (Creator)" : "")
+                                    @(member.User?.Id == Model.Class?.CreatedById ? " (Creator)" : "")
                                 </td>
-                                <td>@member.User.Email</td>
+                                <td>@member.User?.Email</td>
                                 <td>@member.JoinedAt.ToString("MMM dd, yyyy")</td>
-                                <td>@(member.User.Id == Model.Class?.CreatedById ? "Instructor" : "Student")</td>
+                                <td>@(member.User?.Id == Model.Class?.CreatedById ? "Instructor" : "Student")</td>
                             </tr>
                         }
                     </tbody>

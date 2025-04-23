@@ -8,7 +8,12 @@
 @if (SignInManager.IsSignedIn(User))
 {
     <li class="nav-item">
-        @* <a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserAsync(User).Result.Name!</a> *@
+        <a class="nav-link text-dark" asp-controller="Class" asp-action="Index">Created Classes</a>
+    </li>
+    <li class="nav-item">
+         <a class="nav-link text-dark" asp-controller="JoinedClass" asp-action="Index">Joined Classes</a>
+    </li>
+    <li class="nav-item">
         <a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Account Settings</a>
     </li>
     <li class="nav-item">

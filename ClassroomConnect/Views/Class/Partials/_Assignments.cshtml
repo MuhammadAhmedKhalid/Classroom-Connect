@@ -1,0 +1,51 @@
+﻿﻿@using Microsoft.AspNetCore.Identity
+@using Classroom.Models
+
+@inject UserManager<ApplicationUser> UserManager
+
+@model Classroom.Models.ViewModels.ClassDetailsVM
+
+@{
+    var currentUser = await UserManager.GetUserAsync(User);
+    var isCreator = Model.Class?.CreatedById == currentUser?.Id;
+}
+
+<div class="class-section p-4 border rounded">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2 class="section-header">Assignments</h2>
+        @if (isCreator)
+        {
+            <a asp-controller="Assignment" asp-action="Create" asp-route-classId="@Model.Class?.Id" class="btn btn-sm btn-success">
+                <i class="bi bi-plus"></i> New Assignment
+            </a>
+        }
+    </div>
+    <hr />
+
+    @if (Model.Assignments?.Any() == true)
+    {
+        <div class="list-group">
+            @foreach (var assignment in Model.Assignments)
+            {
+                <a asp-controller="Assignment" asp-action="Details" asp-route-id="@assignment.Id"
+                   class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">@assignment.Title</h5>
+                        <small>
+                            Due Date: @assignment.DueDate.ToString() <br />
+                            Close Date: @assignment.CloseDate.ToString()
+                        </small>
+                    </div>
+                    <p class="mb-1">@assignment.Instructions</p>
+                    <small>Posted: @assignment.PostedAt.ToString()</small>
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            No assignments have been posted yet.
+        </div>
+    }
+</div>

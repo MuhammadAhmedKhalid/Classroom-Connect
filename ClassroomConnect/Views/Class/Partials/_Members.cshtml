@@ -1,0 +1,53 @@
+﻿﻿@using Microsoft.AspNetCore.Identity
+@using Classroom.Models
+
+@inject UserManager<ApplicationUser> UserManager
+
+@model Classroom.Models.ViewModels.ClassDetailsVM
+
+@{
+    var currentUser = await UserManager.GetUserAsync(User);
+}
+
+<div class="class-section p-4 border rounded">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2 class="section-header">Class Members</h2>
+        <span class="badge bg-primary">@Model.ClassMembers?.Count members</span>
+    </div>
+    <hr />
+
+    @if (Model.ClassMembers?.Any() == true)
+    {
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Joined Date</th>
+                    <th>Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var member in Model.ClassMembers)
+                {
+                    <tr>
+                        <td>
+                            @member.User?.Name
+                            @(member.User?.Id == currentUser?.Id ? " (Me)" : "")
+                            @(member.User?.Id == Model.Class?.CreatedById ? " (Creator)" : "")
+                        </td>
+                        <td>@member.User?.Email</td>
+                        <td>@member.JoinedAt.ToString("MMM dd, yyyy")</td>
+                        <td>@(member.User?.Id == Model.Class?.CreatedById ? "Instructor" : "Student")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            No members have joined this class yet.
+        </div>
+    }
+</div>

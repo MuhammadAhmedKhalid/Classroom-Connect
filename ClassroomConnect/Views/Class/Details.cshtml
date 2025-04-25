@@ -1,243 +1,99 @@
-﻿@using Microsoft.AspNetCore.Identity
-@using Classroom.Models
+﻿@model Classroom.Models.ViewModels.ClassDetailsVM
 
-@inject UserManager<ApplicationUser> UserManager
+<h1>@Model.Class?.Name</h1>
 
-@model Classroom.Models.ViewModels.ClassDetailsVM
-
-@{
-    ViewData["Title"] = Model.Class?.Name ?? "Class Details";
-    var currentUser = await UserManager.GetUserAsync(User);
-    var isCreator = Model.Class?.CreatedById == currentUser?.Id;
-}
-
-<h1 class="mb-4">@ViewData["Title"]</h1>
-
-<ul class="nav nav-tabs mb-3">
+<ul class="nav nav-tabs mb-3" id="classTabs" role="tablist">
     <li class="nav-item">
-        <a class="nav-link active" id="info-tab" data-bs-toggle="tab" href="#info" role="tab" aria-controls="info" aria-selected="true">Class Information</a>
+        <a class="nav-link active" data-bs-toggle="tab" href="#info">Info</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" id="members-tab" data-bs-toggle="tab" href="#members" role="tab" aria-controls="members" aria-selected="false">Class Members 
-            @* <span class="badge bg-primary">@Model.ClassMembers?.Count</span> *@
-            </a>
+        <a class="nav-link" data-bs-toggle="tab" href="#members">Members</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" id="assignments-tab" data-bs-toggle="tab" href="#assignments" role="tab" aria-controls="assignments" aria-selected="false">Assignments</a>
+        <a class="nav-link" data-bs-toggle="tab" href="#assignments">Assignments</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" id="quizzes-tab" data-bs-toggle="tab" href="#quizzes" role="tab" aria-controls="quizzes" aria-selected="false">Quizzes</a>
+        <a class="nav-link" data-bs-toggle="tab" href="#quizzes">Quizzes</a>
     </li>
 </ul>
 
 <div class="tab-content">
-    <div class="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
-        <div class="class-section p-4 border rounded">
-            <h2 class="section-header">Class Information</h2>
-            <hr />
-            <dl class="row">
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.Class.Name)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.Class.Name)
-                </dd>
-                <dt class="col-sm-2">
-                    @Html.DisplayNameFor(model => model.Class.Description)
-                </dt>
-                <dd class="col-sm-10">
-                    @Html.DisplayFor(model => model.Class.Description)
-                </dd>
-                @if (isCreator)
-                {
-                    <dt class="col-sm-2">Class Code</dt>
-                    <dd class="col-sm-10">
-                        <div class="input-group" style="max-width: 300px;">
-                            <input type="text" class="form-control" id="classCodeInput" value="@Model.Class?.ClassCode" readonly>
-                            <button class="btn btn-outline-secondary" type="button" id="copyButton">
-                                <i class="bi bi-clipboard"></i> Copy
-                            </button>
-                        </div>
-                        <small class="text-muted">Use this code to join the class</small>
-                    </dd>
-                }
-                <dt class="col-sm-2">Created On</dt>
-                <dd class="col-sm-10">
-                    @Model.Class?.CreatedAt.ToString()
-                </dd>
-            </dl>
-
-            @if (isCreator)
-            {
-                <div class="mt-3">
-                    <a asp-action="Edit" asp-route-id="@Model.Class?.Id" class="btn btn-primary">Edit Class</a>
-                    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-                </div>
-            }
-        </div>
+    <div id="info" class="tab-pane fade show active">
+        @Html.Partial("Partials/_Info", Model)
     </div>
-
-    <div class="tab-pane fade" id="members" role="tabpanel" aria-labelledby="members-tab">
-        <div class="class-section p-4 border rounded">
-            <div class="d-flex justify-content-between align-items-center">
-                <h2 class="section-header">Class Members</h2>
-                <span class="badge bg-primary">@Model.ClassMembers?.Count members</span>
-            </div>
-            <hr />
-
-            @if (Model.ClassMembers?.Any() == true)
-            {
-                <table class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Joined Date</th>
-                            <th>Role</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var member in Model.ClassMembers)
-                        {
-                            <tr>
-                                <td>
-                                    @member.User?.Name
-                                    @(member.User == currentUser ? " (Me)" : "")
-                                    @(member.User?.Id == Model.Class?.CreatedById ? " (Creator)" : "")
-                                </td>
-                                <td>@member.User?.Email</td>
-                                <td>@member.JoinedAt.ToString("MMM dd, yyyy")</td>
-                                <td>@(member.User?.Id == Model.Class?.CreatedById ? "Instructor" : "Student")</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            }
-            else
-            {
-                <div class="alert alert-info">
-                    No members have joined this class yet.
-                </div>
-            }
-        </div>
+    <div id="members" class="tab-pane fade">
+        @Html.Partial("Partials/_Members", Model)
     </div>
-
-    <div class="tab-pane fade" id="assignments" role="tabpanel" aria-labelledby="assignments-tab">
-        <div class="class-section p-4 border rounded">
-            <div class="d-flex justify-content-between align-items-center">
-                <h2 class="section-header">Assignments</h2>
-                @if (isCreator)
-                {
-                    <a 
-                        asp-controller="Assignment" asp-action="Create"
-                        asp-route-classId="@Model.Class?.Id" class="btn btn-sm btn-success">
-                        <i class="bi bi-plus"></i> New Assignment
-                    </a>
-                }
-            </div>
-            <hr />
-
-            @if (Model.Assignments?.Any() == true)
-            {
-                <div class="list-group">
-                    @foreach (var assignment in Model.Assignments)
-                    {
-                        <a asp-controller="Assignment" asp-action="Details" asp-route-id="@assignment.Id"
-                           class="list-group-item list-group-item-action">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">@assignment.Title</h5>
-                                <small>
-                                    Due Date: @assignment.DueDate.ToString() <br>
-                                    Close Date: @assignment.CloseDate.ToString()
-                                </small>
-
-                            </div>
-                            <p class="mb-1">@assignment.Instructions</p>
-                            <small>Posted: @assignment.PostedAt.ToString()</small>
-                        </a>
-                    }
-                </div>
-            }
-            else
-            {
-                <div class="alert alert-info">
-                    No assignments have been posted yet.
-                </div>
-            }
-        </div>
+    <div id="assignments" class="tab-pane fade">
+        @Html.Partial("Partials/_Assignments", Model)
     </div>
-
-    <div class="tab-pane fade" id="quizzes" role="tabpanel" aria-labelledby="quizzes-tab">
-        <div class="class-section p-4 border rounded">
-            <div class="d-flex justify-content-between align-items-center">
-                <h2 class="section-header">Quizzes</h2>
-                @if (isCreator)
-                {
-                    <a asp-controller="Quiz" asp-action="Create" asp-route-classId="@Model.Class?.Id" class="btn btn-sm btn-success">
-                        <i class="bi bi-plus"></i> New Quiz
-                    </a>
-                }
-            </div>
-            <hr />
-
-            @if (Model.Quizzes?.Any() == true)
-            {
-                <div class="list-group">
-                    @foreach (var quiz in Model.Quizzes)
-                    {
-                        <a asp-controller="Quiz" asp-action="Details" asp-route-id="@quiz.Id"
-                           class="list-group-item list-group-item-action">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">@quiz.Title</h5>
-                                <small>
-                                    Due Date: @quiz.DueDate.ToString() <br>
-                                    Close Date: @quiz.CloseDate.ToString()
-                                </small>
-                            </div>
-                            <p class="mb-1">@quiz.Instructions</p>
-                            <small>Posted: @quiz.PostedAt.ToString()</small>
-                        </a>
-                    }
-                </div>
-            }
-            else
-            {
-                <div class="alert alert-info">
-                    No quizzes have been created yet.
-                </div>
-            }
-        </div>
+    <div id="quizzes" class="tab-pane fade">
+        @Html.Partial("Partials/_Quizzes", Model)
     </div>
 </div>
 
 @section Scripts {
     <script>
-        document.getElementById('copyButton').addEventListener('click', function() {
-            const classCodeInput = document.getElementById('classCodeInput');
-            classCodeInput.select();
-            document.execCommand('copy');
+        document.addEventListener('DOMContentLoaded', function() {
+            const classTabs = document.getElementById('classTabs');
 
-            // Change button appearance temporarily
-            const originalText = this.innerHTML;
-            this.innerHTML = '<i class="bi bi-check"></i> Copied!';
-            this.classList.remove('btn-outline-secondary');
-            this.classList.add('btn-success');
+            // Function to show tab based on hash
+            function showTabFromHash() {
+                const hash = window.location.hash;
 
-            // Revert after 2 seconds
-            setTimeout(() => {
-                this.innerHTML = originalText;
-                this.classList.remove('btn-success');
-                this.classList.add('btn-outline-secondary');
-            }, 2000);
+                // Remove active class from all tabs and panes first
+                classTabs.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+
+                document.querySelectorAll('.tab-pane').forEach(pane => {
+                    pane.classList.remove('show', 'active');
+                });
+
+                if (hash) {
+                    const tabLink = classTabs.querySelector(`[href="${hash}"]`);
+
+                    if (tabLink) {
+                        // Activate the target tab
+                        tabLink.classList.add('active');
+
+                        const targetPane = document.querySelector(hash);
+                        if (targetPane) {
+                            targetPane.classList.add('show', 'active');
+                        }
+                    }
+                } else {
+                    // If hash is empty, default to #info tab
+                    const defaultTab = classTabs.querySelector('[href="#info"]');
+                    if (defaultTab) {
+                        defaultTab.classList.add('active');
+                        document.querySelector('#info').classList.add('show', 'active');
+                    }
+                }
+            }
+
+            // Initial tab setup
+            showTabFromHash();
+
+            // Update URL hash when tab changes
+            classTabs.querySelectorAll('.nav-link').forEach(tab => {
+                tab.addEventListener('click', function(event) {
+                    const href = this.getAttribute('href');
+
+                    // Don't do anything if clicking #info tab and hash is already empty
+                    if (href === "#info" && !window.location.hash) {
+                        event.preventDefault();
+                        return;
+                    }
+
+                    window.location.hash = href;
+                });
+            });
+
+            // Listen for hash changes (back/forward buttons)
+            window.addEventListener('hashchange', function(event) {
+                showTabFromHash();
+            });
         });
-
-        // Initialize Bootstrap Tabs (optional, but good practice)
-        var tabEl = document.querySelector('a[data-bs-toggle="tab"]')
-        if (tabEl) {
-            tabEl.addEventListener('show.bs.tab', function (event) {
-                // event.target will be the newly activated tab
-                // event.relatedTarget will be the previous active tab
-            })
-        }
     </script>
 }

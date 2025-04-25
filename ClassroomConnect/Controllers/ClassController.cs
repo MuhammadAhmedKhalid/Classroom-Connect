@@ -18,7 +18,6 @@ namespace ClassroomConnect.Controllers
 
         #region Endpoints
 
-        // GET: Classes
         public IActionResult Index()
         {
             ViewData["Title"] = "Created Classes";
@@ -29,7 +28,6 @@ namespace ClassroomConnect.Controllers
             return View(userClasses);
         }
 
-        // GET: Classes/Details/5
         public IActionResult Details(int? id)
         {
             ViewData["Title"] = "Class Details";
@@ -58,7 +56,6 @@ namespace ClassroomConnect.Controllers
             return View(classDetails);
         }
 
-        // GET: Classes/Create
         public IActionResult Create()
         {
             ViewData["Title"] = "Create Class";
@@ -91,7 +88,6 @@ namespace ClassroomConnect.Controllers
             return View(@class);
         }
 
-        // GET: Classes/Edit/5
         public IActionResult Edit(int? id)
         {
             ViewData["Title"] = "Edit Class";
@@ -102,7 +98,6 @@ namespace ClassroomConnect.Controllers
             return View(@class);
         }
 
-        // POST: Classes/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id, [Bind("Id,Name,Description")] Class @class)
@@ -129,7 +124,6 @@ namespace ClassroomConnect.Controllers
             return View(@class);
         }
 
-        // GET: Classes/Delete/5
         public IActionResult Delete(int? id)
         {
             ViewData["Title"] = "Delete Class";
@@ -143,7 +137,6 @@ namespace ClassroomConnect.Controllers
             return View(@class);
         }
 
-        // POST: Classes/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)

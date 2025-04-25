@@ -56,9 +56,25 @@ namespace ClassroomConnect.Areas.Identity.Pages.Account.Manage
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
+
+            [Required(ErrorMessage = "The Name field is required.")]
+            [Display(Name = "Full Name")]
+            public required string Name { get; set; }
+            
             [Phone]
             [Display(Name = "Phone number")]
             public string PhoneNumber { get; set; }
+
+            [Display(Name = "Street Address")]
+            public string StreetAddress { get; set; }
+
+            public string City { get; set; }
+            
+            public string State { get; set; }
+
+            [Display(Name = "Postal Code")]
+            public string PostalCode { get; set; }
+
         }
 
         private async Task LoadAsync(ApplicationUser user)
@@ -70,7 +86,12 @@ namespace ClassroomConnect.Areas.Identity.Pages.Account.Manage
 
             Input = new InputModel
             {
-                PhoneNumber = phoneNumber
+                Name = user.Name,
+                PhoneNumber = phoneNumber,
+                StreetAddress = user.StreetAddress,
+                City = user.City,
+                State = user.State,
+                PostalCode = user.PostalCode,
             };
         }
 
@@ -101,12 +122,54 @@ namespace ClassroomConnect.Areas.Identity.Pages.Account.Manage
             }
 
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-            if (Input.PhoneNumber != phoneNumber)
+            if (!Input.PhoneNumber.Equals(phoneNumber))
             {
                 var setPhoneResult = await _userManager.SetPhoneNumberAsync(user, Input.PhoneNumber);
                 if (!setPhoneResult.Succeeded)
                 {
                     StatusMessage = "Unexpected error when trying to set phone number.";
+                    return RedirectToPage();
+                }
+            }
+
+            bool hasChanges = false;
+
+            if (user.Name != Input.Name)
+            {
+                user.Name = Input.Name;
+                hasChanges = true;
+            }
+
+            if (user.StreetAddress != Input.StreetAddress)
+            {
+                user.StreetAddress = Input.StreetAddress;
+                hasChanges = true;
+            }
+
+            if (user.City != Input.City)
+            {
+                user.City = Input.City;
+                hasChanges = true;
+            }
+
+            if (user.State != Input.State)
+            {
+                user.State = Input.State;
+                hasChanges = true;
+            }
+
+            if (user.PostalCode != Input.PostalCode)
+            {
+                user.PostalCode = Input.PostalCode;
+                hasChanges = true;
+            }
+
+            if (hasChanges)
+            {
+                var result = await _userManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                {
+                    StatusMessage = "Unexpected error when trying to update profile.";
                     return RedirectToPage();
                 }
             }

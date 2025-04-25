@@ -18,7 +18,7 @@
                     <div class="card h-100 shadow-sm">
                         <div class="card-body">
                             <h5 class="card-title">@item.Name</h5>
-                            <p class="card-text text-muted">
+                            <p class="card-text text-muted" style="display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden;">
                                 @(string.IsNullOrEmpty(item.Description) ? "No description" : item.Description)
                             </p>
                         </div>

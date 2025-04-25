@@ -120,6 +120,7 @@ namespace ClassroomConnect.Controllers
             if (!System.IO.File.Exists(filePath)) return NotFound();
 
             var fileBytes = System.IO.File.ReadAllBytes(filePath);
+
             return File(fileBytes, GetContentType(filePath), fileName);
         }
 

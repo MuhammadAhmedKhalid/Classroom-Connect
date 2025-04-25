@@ -83,6 +83,9 @@ namespace ClassroomConnect.Controllers
                 @class.ClassCode = GenerateUniqueClassCode();
                 _db.Add(@class);
                 _db.SaveChanges();
+
+                TempData["success"] = "Class created successfully";
+
                 return RedirectToAction(nameof(Index));
             }
             return View(@class);
@@ -152,6 +155,8 @@ namespace ClassroomConnect.Controllers
                 _db.Classes.Remove(@class);
                 _db.SaveChanges();
             }
+
+            TempData["success"] = "Class deleted successfully";
 
             return RedirectToAction(nameof(Index));
         }

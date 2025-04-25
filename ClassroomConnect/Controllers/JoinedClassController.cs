@@ -73,6 +73,8 @@ namespace ClassroomConnect.Controllers
                 _db.ClassMembers.Add(newMembership);
                 _db.SaveChanges();
 
+                TempData["success"] = "Class joined successfully";
+
                 return RedirectToAction("Index", "JoinedClass");
             }
             return View(joinClassVM);

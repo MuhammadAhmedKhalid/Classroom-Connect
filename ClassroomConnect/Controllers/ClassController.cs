@@ -1,4 +1,6 @@
 ﻿using Classroom.DataAccess.Data;
+using Classroom.DataAccess.Repository;
+using Classroom.DataAccess.Repository.IRepository;
 using Classroom.Models;
 using Classroom.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -10,9 +12,9 @@ using System.Security.Cryptography;
 namespace ClassroomConnect.Controllers
 {
     [Authorize]
-    public class ClassController(ApplicationDbContext db) : Controller
+    public class ClassController(UnitOfWork unitOfWork) : Controller
     {
-        private readonly ApplicationDbContext _db = db;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         private const string AllowedChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
@@ -23,7 +25,7 @@ namespace ClassroomConnect.Controllers
             ViewData["Title"] = "Created Classes";
 
             string? currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var userClasses = _db.Classes.Where(c => c.CreatedById == currentUserId).ToList();
+            var userClasses = _unitOfWork.Classes.GetAll(c => c.CreatedById == currentUserId);
 
             return View(userClasses);
         }
@@ -34,7 +36,7 @@ namespace ClassroomConnect.Controllers
 
             if (id == null) return NotFound();
 
-            var @class = _db.Classes.FirstOrDefault(m => m.Id == id);
+            var @class = _unitOfWork.Classes.Get(m => m.Id == id);
             if (@class == null) return NotFound();
 
             var classMembers = _db.ClassMembers
@@ -78,8 +80,8 @@ namespace ClassroomConnect.Controllers
                 @class.CreatedAt = DateTime.Now;
                 @class.CreatedById = User.FindFirstValue(ClaimTypes.NameIdentifier); // Gets current user's ID
                 @class.ClassCode = GenerateUniqueClassCode();
-                _db.Add(@class);
-                _db.SaveChanges();
+                _unitOfWork.Classes.Add(@class);
+                _unitOfWork.Save();
 
                 TempData["success"] = "Class created successfully";
 
@@ -93,7 +95,7 @@ namespace ClassroomConnect.Controllers
             ViewData["Title"] = "Edit Class";
 
             if (id == null) return NotFound();
-            var @class = _db.Classes.Find(id);
+            var @class = _unitOfWork.Classes.Get(c => c.Id == id);
             if (@class == null) return NotFound();
             return View(@class);
         }
@@ -107,12 +109,11 @@ namespace ClassroomConnect.Controllers
             {
                 try
                 {
-                    var classFromDb = _db.Classes.FirstOrDefault(c => c.Id == id);
+                    var classFromDb = _unitOfWork.Classes.Get(c => c.Id == id);
                     if (classFromDb == null) return NotFound();
-                    classFromDb.Name = @class.Name;
-                    classFromDb.Description = @class.Description ?? string.Empty;
 
-                    _db.SaveChanges();
+                    _unitOfWork.Classes.Update(classFromDb, @class);
+                    _unitOfWork.Save();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -160,7 +161,7 @@ namespace ClassroomConnect.Controllers
 
         private bool ClassExists(int id)
         {
-            return _db.Classes.Any(e => e.Id == id);
+            return _unitOfWork.Classes.Any(c => c.Id == id);
         }
 
         private string GenerateUniqueClassCode()
@@ -178,7 +179,7 @@ namespace ClassroomConnect.Controllers
 
                 code = new string(randomBytes.Select(b => AllowedChars[b % AllowedChars.Length]).ToArray());
 
-                isUnique = !_db.Classes.Any(c => c.ClassCode == code);
+                isUnique = !_unitOfWork.Classes.Any(c => c.ClassCode == code);
             }
             while (!isUnique);
 

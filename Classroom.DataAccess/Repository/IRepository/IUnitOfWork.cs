@@ -2,5 +2,8 @@
 {
     public interface IUnitOfWork
     {
+        IClassRepository Classes { get; }
+
+        void Save();
     }
 }

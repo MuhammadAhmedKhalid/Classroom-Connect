@@ -1,6 +1,4 @@
-﻿using Classroom.DataAccess.Data;
-using Classroom.DataAccess.Repository;
-using Classroom.DataAccess.Repository.IRepository;
+﻿using Classroom.DataAccess.Repository.IRepository;
 using Classroom.Models;
 using Classroom.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -12,7 +10,7 @@ using System.Security.Cryptography;
 namespace ClassroomConnect.Controllers
 {
     [Authorize]
-    public class ClassController(UnitOfWork unitOfWork) : Controller
+    public class ClassController(IUnitOfWork unitOfWork) : Controller
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
@@ -39,20 +37,20 @@ namespace ClassroomConnect.Controllers
             var @class = _unitOfWork.Classes.Get(m => m.Id == id);
             if (@class == null) return NotFound();
 
-            var classMembers = _db.ClassMembers
-                .Where(cm => cm.ClassId == @class.Id)
-                .Include(cm => cm.User)
-                .ToList();
+            //var classMembers = _db.ClassMembers
+            //    .Where(cm => cm.ClassId == @class.Id)
+            //    .Include(cm => cm.User)
+            //    .ToList();
 
-            var assignments = _db.Assignments.Where(a => a.ClassId == @class.Id).ToList();
-            var quizzes = _db.Quizzes.Where(q => q.ClassId == @class.Id).ToList();
+            //var assignments = _db.Assignments.Where(a => a.ClassId == @class.Id).ToList();
+            //var quizzes = _db.Quizzes.Where(q => q.ClassId == @class.Id).ToList();
 
             var classDetails = new ClassDetailsVM
             {
                 Class = @class,
-                ClassMembers = classMembers,
-                Assignments = assignments,
-                Quizzes = quizzes
+                ClassMembers = null,
+                Assignments = null,
+                Quizzes = null
             };
 
             return View(classDetails);
@@ -131,7 +129,7 @@ namespace ClassroomConnect.Controllers
 
             if (id == null) return NotFound();
 
-            var @class = _db.Classes.FirstOrDefault(m => m.Id == id);
+            var @class = _unitOfWork.Classes.Get(c => c.Id == id);
 
             if (@class == null) return NotFound();
 
@@ -142,12 +140,12 @@ namespace ClassroomConnect.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult DeleteConfirmed(int id)
         {
-            var @class = _db.Classes.Find(id);
-            
+            var @class = _unitOfWork.Classes.Get(c => c.Id == id);
+
             if (@class != null)
             {
-                _db.Classes.Remove(@class);
-                _db.SaveChanges();
+                _unitOfWork.Classes.Remove(@class);
+                _unitOfWork.Save();
             }
 
             TempData["success"] = "Class deleted successfully";

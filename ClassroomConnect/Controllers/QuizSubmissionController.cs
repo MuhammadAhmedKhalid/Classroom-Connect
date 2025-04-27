@@ -1,4 +1,5 @@
 ﻿using Classroom.DataAccess.Data;
+using Classroom.DataAccess.Repository.IRepository;
 using Classroom.Models;
 using Classroom.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -9,30 +10,30 @@ using System.Security.Claims;
 namespace ClassroomConnect.Controllers
 {
     [Authorize]
-    public class QuizSubmissionController(ApplicationDbContext db) : Controller
+    public class QuizSubmissionController(IUnitOfWork unitOfWork) : Controller
     {
-        private readonly ApplicationDbContext _db = db;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public IActionResult ViewSubmission(int quizId, string studentId)
         {
             ViewData["Title"] = "Submitted Quiz Answers";
 
-            var quiz = _db.Quizzes.Include(q => q.Class).FirstOrDefault(q => q.Id == quizId);
+            var quiz = _unitOfWork.Quizzes.Get(q => q.Id == quizId, includeProperties: "Class");
 
             if (quiz == null) return NotFound();
 
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var @class = _db.Classes.FirstOrDefault(c => c.Id == quiz.ClassId);
+            var @class = _unitOfWork.Classes.Get(c => c.Id == quiz.ClassId);
 
             if (@class == null || @class.CreatedById != currentUserId) return RedirectToAction("Index", "Home");
 
-            quiz.Questions = _db.QuizQuestions.Where(q => q.QuizId == quiz.Id).ToList();
+            quiz.Questions = _unitOfWork.QuizQuestions.GetAll(q => q.QuizId == quiz.Id).ToList();
 
-            var quizSubmission = _db.QuizSubmissions.FirstOrDefault(qs => qs.UserId.Equals(studentId) && qs.QuizId == quizId);
+            var quizSubmission = _unitOfWork.QuizSubmissions.Get(qs => qs.UserId.Equals(studentId) && qs.QuizId == quizId);
 
             if (quizSubmission == null) return NotFound();
 
-            var quizAnswers = _db.QuizAnswers.Where(qa => qa.QuizSubmissionId == quizSubmission.Id).ToList();
+            var quizAnswers = _unitOfWork.QuizAnswers.GetAll(qa => qa.QuizSubmissionId == quizSubmission.Id).ToList();
 
             var submittedQuiz = new SubmittedQuizVM
             {
@@ -45,23 +46,18 @@ namespace ClassroomConnect.Controllers
 
         public IActionResult Details(int id)
         {
-            var quiz = _db.Quizzes.FirstOrDefault(q => q.Id == id);
+            var quiz = _unitOfWork.Quizzes.Get(q => q.Id == id);
 
             if (quiz == null) return NotFound();
 
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var @class = _db.Classes.FirstOrDefault(c => c.Id == quiz.ClassId);
+            var @class = _unitOfWork.Classes.Get(c => c.Id == quiz.ClassId);
 
             if (@class == null || @class.CreatedById != currentUserId) return RedirectToAction("Index", "Home");
 
-            var classMembers = _db.ClassMembers
-                .Where(cm => cm.ClassId == quiz.ClassId)
-                .Include(cm => cm.User)
-                .ToList();
+            var classMembers = _unitOfWork.ClassMembers.GetAll(cm => cm.ClassId == quiz.ClassId, includeProperties: "User").ToList();
 
-            var submissions = _db.QuizSubmissions
-                .Where(s => s.QuizId == id)
-                .ToList();
+            var submissions = _unitOfWork.QuizSubmissions.GetAll(s => s.QuizId == id);
 
             ViewBag.Submissions = submissions;
             ViewBag.QuizId = id;
@@ -76,7 +72,7 @@ namespace ClassroomConnect.Controllers
             // if is submission closed then dont allow 
 
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var quiz = _db.Quizzes.Include(q => q.Class).FirstOrDefault(q => q.Id == id);
+            var quiz = _unitOfWork.Quizzes.Get(q => q.Id == id, includeProperties: "Class");
 
             if (quiz == null) return NotFound();
 
@@ -90,8 +86,8 @@ namespace ClassroomConnect.Controllers
                     SubmittedAt = DateTime.Now,
                 };
 
-                _db.QuizSubmissions.Add(quizSubmission);
-                _db.SaveChanges();
+                _unitOfWork.QuizSubmissions.Add(quizSubmission);
+                _unitOfWork.Save();
 
                 foreach (var answer in model.Answers)
                 {
@@ -103,11 +99,11 @@ namespace ClassroomConnect.Controllers
                             QuizSubmissionId = quizSubmission.Id
                         };
 
-                        _db.QuizAnswers.Add(quizAnswer);
+                        _unitOfWork.QuizAnswers.Add(quizAnswer);
                     }
                 }
-                
-                _db.SaveChanges();
+
+                _unitOfWork.Save();
 
                 TempData["success"] = "Quiz submitted successfully";
 

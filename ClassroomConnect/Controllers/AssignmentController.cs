@@ -1,24 +1,23 @@
-﻿using Classroom.DataAccess.Data;
+﻿using Classroom.DataAccess.Repository.IRepository;
 using Classroom.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace ClassroomConnect.Controllers
 {
     [Authorize]
-    public class AssignmentController(ApplicationDbContext db) : Controller
+    public class AssignmentController(IUnitOfWork unitOfWork) : Controller
     {
 
-        private readonly ApplicationDbContext _db = db;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public IActionResult Create(int classId)
         {
             ViewData["Title"] = "Create Assignment";
 
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var @class = _db.Classes.FirstOrDefault(c => c.Id == classId);
+            var @class = _unitOfWork.Classes.Get(c => c.Id == classId);
 
             if (@class == null || @class.CreatedById != currentUserId) return RedirectToAction("Index", "Home");
 
@@ -44,8 +43,8 @@ namespace ClassroomConnect.Controllers
                 assignment.Instructions ??= string.Empty;
                 assignment.PostedAt = DateTime.Now;
 
-                _db.Add(assignment);
-                _db.SaveChanges();
+                _unitOfWork.Assignments.Add(assignment);
+                _unitOfWork.Save();
 
                 TempData["success"] = "Assignment posted successfully";
 
@@ -64,7 +63,7 @@ namespace ClassroomConnect.Controllers
 
             var assignment = GetAssignment(id);
 
-            ViewBag.HasSubmitted = _db.AssignmentSubmissions.Any(s => s.AssignmentId == id && s.UserId == currentUserId);
+            ViewBag.HasSubmitted = _unitOfWork.AssignmentSubmissions.Any(s => s.AssignmentId == id && s.UserId == currentUserId);
             ViewBag.IsClosed = IsAssignmentClosed(assignment);
 
             return View(assignment);
@@ -73,7 +72,7 @@ namespace ClassroomConnect.Controllers
         [HttpGet]
         public JsonResult IsAssignmentClosed(int id)
         {
-            var assignment = _db.Assignments.Find(id);
+            var assignment = _unitOfWork.Assignments.Get(a => a.Id == id);
             bool isClosed = IsAssignmentClosed(assignment);
             return Json(new { isClosed });
         }
@@ -82,9 +81,7 @@ namespace ClassroomConnect.Controllers
 
         private Assignment? GetAssignment(int? id)
         {
-            return _db.Assignments
-                .Include(a => a.Class)
-                .FirstOrDefault(m => m.Id == id);
+            return _unitOfWork.Assignments.Get(m => m.Id == id, includeProperties: "Class");
         }
 
         private bool IsAssignmentClosed(Assignment? assignment)

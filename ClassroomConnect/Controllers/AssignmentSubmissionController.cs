@@ -1,39 +1,33 @@
-﻿using Classroom.DataAccess.Data;
+﻿using Classroom.DataAccess.Repository.IRepository;
 using Classroom.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace ClassroomConnect.Controllers
 {
     [Authorize]
-    public class AssignmentSubmissionController(ApplicationDbContext db, IWebHostEnvironment webHostEnvironment) : Controller
+    public class AssignmentSubmissionController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment) : Controller
     {
 
-        private readonly ApplicationDbContext _db = db;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IWebHostEnvironment _webHostEnvironment = webHostEnvironment;
 
         public IActionResult Details(int assignmentId)
         {
-            var assignment = _db.Assignments.FirstOrDefault(a => a.Id == assignmentId);
+            var assignment = _unitOfWork.Assignments.Get(a => a.Id == assignmentId);
 
             if (assignment == null) return NotFound();
 
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var @class = _db.Classes.FirstOrDefault(c => c.Id == assignment.ClassId);
+            var @class = _unitOfWork.Classes.Get(c => c.Id == assignment.ClassId);
 
             if (@class == null || @class.CreatedById != currentUserId) return RedirectToAction("Index", "Home");
 
-            var classMembers = _db.ClassMembers
-                .Where(cm => cm.ClassId == assignment.ClassId)
-                .Include(cm => cm.User)
-                .ToList();
+            var classMembers = _unitOfWork.ClassMembers.GetAll(cm => cm.ClassId == assignment.ClassId, includeProperties: "User").ToList();
 
-            var submissions = _db.AssignmentSubmissions
-                .Where(s => s.AssignmentId == assignmentId)
-                .ToList();
+            var submissions = _unitOfWork.AssignmentSubmissions.GetAll(s => s.AssignmentId == assignmentId);
 
             ViewBag.Submissions = submissions;
             ViewBag.AssignmentId = assignmentId; 
@@ -45,7 +39,7 @@ namespace ClassroomConnect.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Submission(int id, IFormFile wordDocument)
         {
-            var assignment = _db.Assignments.Find(id);
+            var assignment = _unitOfWork.Assignments.Get(a => a.Id == id);
             bool isSubmissionClosed = assignment?.CloseDate.HasValue == true && assignment.CloseDate < DateTime.Now; ;
             
             if (isSubmissionClosed)
@@ -92,8 +86,9 @@ namespace ClassroomConnect.Controllers
                     FileName = fileName,
                 };
 
-                _db.AssignmentSubmissions.Add(submission);
-                _db.SaveChanges();
+
+                _unitOfWork.AssignmentSubmissions.Add(submission);
+                _unitOfWork.Save();
 
                 TempData["success"] = "Assignment submitted successfully";
 
@@ -109,7 +104,7 @@ namespace ClassroomConnect.Controllers
 
         public IActionResult DownloadSubmission(int submissionId)
         {
-            var submission = _db.AssignmentSubmissions.FirstOrDefault(s => s.Id == submissionId);
+            var submission = _unitOfWork.AssignmentSubmissions.Get(s => s.Id == submissionId);
 
             if (submission == null || string.IsNullOrEmpty(submission.FilePath)) return NotFound();
 

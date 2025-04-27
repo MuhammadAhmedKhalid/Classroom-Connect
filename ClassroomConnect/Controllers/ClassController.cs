@@ -37,20 +37,16 @@ namespace ClassroomConnect.Controllers
             var @class = _unitOfWork.Classes.Get(m => m.Id == id);
             if (@class == null) return NotFound();
 
-            //var classMembers = _db.ClassMembers
-            //    .Where(cm => cm.ClassId == @class.Id)
-            //    .Include(cm => cm.User)
-            //    .ToList();
-
-            //var assignments = _db.Assignments.Where(a => a.ClassId == @class.Id).ToList();
-            //var quizzes = _db.Quizzes.Where(q => q.ClassId == @class.Id).ToList();
+            var classMember = _unitOfWork.ClassMembers.GetAll(cm => cm.ClassId == @class.Id, includeProperties: "User").ToList();
+            var assignments = _unitOfWork.Assignments.GetAll(a => a.ClassId == @class.Id).ToList();
+            var quizzes = _unitOfWork.Quizzes.GetAll(q => q.ClassId == @class.Id).ToList();
 
             var classDetails = new ClassDetailsVM
             {
                 Class = @class,
-                ClassMembers = null,
-                Assignments = null,
-                Quizzes = null
+                ClassMembers = classMember,
+                Assignments = assignments,
+                Quizzes = quizzes
             };
 
             return View(classDetails);

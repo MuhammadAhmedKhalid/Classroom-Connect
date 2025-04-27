@@ -24,7 +24,6 @@
                     <th>Name</th>
                     <th>Email</th>
                     <th>Joined Date</th>
-                    <th>Role</th>
                 </tr>
             </thead>
             <tbody>
@@ -38,7 +37,6 @@
                         </td>
                         <td>@member.User?.Email</td>
                         <td>@member.JoinedAt.ToString("MMM dd, yyyy")</td>
-                        <td>@(member.User?.Id == Model.Class?.CreatedById ? "Instructor" : "Student")</td>
                     </tr>
                 }
             </tbody>

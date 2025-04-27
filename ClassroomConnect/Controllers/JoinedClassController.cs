@@ -1,17 +1,16 @@
-﻿using Classroom.DataAccess.Data;
+﻿using Classroom.DataAccess.Repository.IRepository;
 using Classroom.Models;
 using Classroom.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace ClassroomConnect.Controllers
 {
     [Authorize]
-    public class JoinedClassController(ApplicationDbContext db) : Controller
+    public class JoinedClassController(IUnitOfWork unitOfWork) : Controller
     {
-        private readonly ApplicationDbContext _db = db;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public IActionResult Index()
         {
@@ -19,10 +18,7 @@ namespace ClassroomConnect.Controllers
 
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var joinedClasses = _db.ClassMembers
-                .Where(cm => cm.UserId == currentUserId)
-                .Include(cm => cm.Class)
-                .ToList();
+            var joinedClasses = _unitOfWork.ClassMembers.GetAll(cm => cm.UserId == currentUserId, includeProperties: "Class");
 
             return View(joinedClasses);
         }
@@ -39,7 +35,7 @@ namespace ClassroomConnect.Controllers
         {
             if (ModelState.IsValid)
             {
-                var existingClass = _db.Classes.FirstOrDefault(c => c.ClassCode == joinClassVM.ClassCode);
+                var existingClass = _unitOfWork.Classes.Get(c => c.ClassCode == joinClassVM.ClassCode);
 
                 if (existingClass == null)
                 {
@@ -55,7 +51,8 @@ namespace ClassroomConnect.Controllers
                     return View(joinClassVM);
                 }
 
-                var existingMembership = _db.ClassMembers.FirstOrDefault(cm => cm.ClassId == existingClass.Id && cm.UserId == userId);
+                var existingMembership = _unitOfWork.ClassMembers.Get(cm => cm.ClassId == existingClass.Id
+                    && cm.UserId == userId);
 
                 if (existingMembership != null)
                 {
@@ -70,8 +67,8 @@ namespace ClassroomConnect.Controllers
                     JoinedAt = DateTime.Now
                 };
 
-                _db.ClassMembers.Add(newMembership);
-                _db.SaveChanges();
+                _unitOfWork.ClassMembers.Add(newMembership);
+                _unitOfWork.Save();
 
                 TempData["success"] = "Class joined successfully";
 

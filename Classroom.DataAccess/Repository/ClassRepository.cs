@@ -18,8 +18,6 @@ namespace Classroom.DataAccess.Repository
         {
             classFromDb.Name = @class.Name;
             classFromDb.Description = @class.Description ?? string.Empty;
-
-            _db.SaveChanges();
         }
     }
 }

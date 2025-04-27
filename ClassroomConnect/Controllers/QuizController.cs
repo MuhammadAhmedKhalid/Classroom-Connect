@@ -1,4 +1,5 @@
 ﻿using Classroom.DataAccess.Data;
+using Classroom.DataAccess.Repository.IRepository;
 using Classroom.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,10 +9,10 @@ using System.Security.Claims;
 namespace ClassroomConnect.Controllers
 {
     [Authorize]
-    public class QuizController(ApplicationDbContext db) : Controller
+    public class QuizController(IUnitOfWork unitOfWork) : Controller
     {
 
-        private readonly ApplicationDbContext _db = db;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public IActionResult Details(int? id)
         {
@@ -37,7 +38,7 @@ namespace ClassroomConnect.Controllers
             ViewData["Title"] = "Create Quiz";
 
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var @class = _db.Classes.FirstOrDefault(c => c.Id == classId);
+            var @class = _unitOfWork.Classes.Get(c => c.Id == classId);
 
             if (@class == null || @class.CreatedById != currentUserId) return RedirectToAction("Index", "Home");
 
@@ -67,8 +68,8 @@ namespace ClassroomConnect.Controllers
 
                 quiz.PostedAt = DateTime.Now;
 
-                _db.Quizzes.Add(quiz);
-                _db.SaveChanges();
+                _unitOfWork.Quizzes.Add(quiz);
+                _unitOfWork.Save();
 
                 TempData["success"] = "Quiz created successfully";
 
@@ -81,25 +82,17 @@ namespace ClassroomConnect.Controllers
 
         private Quiz? GetQuiz(int? id)
         {
-            Quiz? quiz = _db.Quizzes.Include(q => q.Class).FirstOrDefault(q => q.Id == id);
+            Quiz? quiz = _unitOfWork.Quizzes.Get(q => q.Id == id, includeProperties: "Class");
 
             if (quiz != null)
-                quiz.Questions = _db.QuizQuestions.Where(q => q.QuizId == quiz.Id).ToList();
+                quiz.Questions = _unitOfWork.QuizQuestions.GetAll(q => q.QuizId == quiz.Id).ToList();
 
             return quiz;
         }
 
         private bool IsQuizSubmitted(Quiz? quiz, string userId)
         {
-            List<QuizSubmission> quizSubmissions = _db.QuizSubmissions.ToList();
-
-            for(int i = 0; i < quizSubmissions.Count; i++)
-            {
-                System.Diagnostics.Debug.WriteLine("Quiz Id: " + quizSubmissions[i].QuizId);
-                System.Diagnostics.Debug.WriteLine("User Id: " + quizSubmissions[i].UserId);
-            }
-
-            return _db.QuizSubmissions.Any(q => q.QuizId == quiz.Id && q.UserId.Equals(userId));
+            return _unitOfWork.QuizSubmissions.Any(q => q.QuizId == quiz.Id && q.UserId.Equals(userId));
         }
 
         private bool IsQuizClosed(Quiz? quiz)

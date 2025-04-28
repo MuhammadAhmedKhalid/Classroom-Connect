@@ -119,34 +119,21 @@ namespace ClassroomConnect.Controllers
             return View(@class);
         }
 
-        public IActionResult Delete(int? id)
-        {
-            ViewData["Title"] = "Delete Class";
-
-            if (id == null) return NotFound();
-
-            var @class = _unitOfWork.Classes.Get(c => c.Id == id);
-
-            if (@class == null) return NotFound();
-
-            return View(@class);
-        }
-
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
+        public IActionResult Delete(int id)
         {
             var @class = _unitOfWork.Classes.Get(c => c.Id == id);
 
-            if (@class != null)
+            if (@class == null)
             {
-                _unitOfWork.Classes.Remove(@class);
-                _unitOfWork.Save();
+                return Json(new { success = false, message = "Class not found." });
             }
 
-            TempData["success"] = "Class deleted successfully";
+            _unitOfWork.Classes.Remove(@class);
+            _unitOfWork.Save();
 
-            return RedirectToAction(nameof(Index));
+            return Json(new { success = true, message = "Class deleted successfully." });
         }
 
         #endregion

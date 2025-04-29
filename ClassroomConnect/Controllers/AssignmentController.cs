@@ -69,6 +69,31 @@ namespace ClassroomConnect.Controllers
             return View(assignment);
         }
 
+        public IActionResult Edit(int? id)
+        {
+            ViewData["Title"] = "Edit Assignment";
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(int id)
+        {
+            var assignment = _unitOfWork.Assignments.Get(a => a.Id == id);
+
+            if (assignment == null)
+            {
+                return Json(new { success = false, message = "Assignment not found." });
+            }
+            
+            var classId = assignment.ClassId;
+
+            _unitOfWork.Assignments.Remove(assignment);
+            _unitOfWork.Save();
+
+            return Json(new { redirectUrl = Url.Action("Details", "Class", new { id = classId }) });
+        }
+
         [HttpGet]
         public JsonResult IsAssignmentClosed(int id)
         {

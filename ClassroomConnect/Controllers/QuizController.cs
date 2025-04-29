@@ -78,6 +78,31 @@ namespace ClassroomConnect.Controllers
             return View(quiz);
         }
 
+        public IActionResult Edit(int? id)
+        {
+            ViewData["Title"] = "Edit Quiz";
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Delete(int id)
+        {
+            var quiz = _unitOfWork.Quizzes.Get(q => q.Id == id);
+
+            if (quiz == null)
+            {
+                return Json(new { success = false, message = "Quiz not found." });
+            }
+
+            var classId = quiz.ClassId;
+
+            _unitOfWork.Quizzes.Remove(quiz);
+            _unitOfWork.Save();
+
+            return Json(new { redirectUrl = Url.Action("Details", "Class", new { id = classId }) });
+        }
+
         #region Helper methods
 
         private Quiz? GetQuiz(int? id)

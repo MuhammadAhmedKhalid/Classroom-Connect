@@ -21,8 +21,5 @@ namespace Classroom.Models
         [ForeignKey("Class")]
         public int ClassId { get; set; }
         public Class? Class { get; set; }
-
-        // add one more column to check if the assignment is submitted on time, or after due date
-        // also if there is no due date then dont allow user to add close date
     }
 }

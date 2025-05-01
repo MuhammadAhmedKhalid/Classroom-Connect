@@ -14,9 +14,12 @@ namespace Classroom.DataAccess.Repository
             _db = db;
         }
 
-        //public void Update(Assignment assignment)
-        //{
-            
-        //}
+        public void Update(Assignment assignmentFromDb, Assignment assignment)
+        {
+            assignmentFromDb.Title = assignment.Title;
+            assignmentFromDb.Instructions = assignment.Instructions ?? string.Empty; 
+            assignmentFromDb.DueDate = assignment.DueDate;
+            assignmentFromDb.CloseDate = assignment.CloseDate;
+        }
     }
 }

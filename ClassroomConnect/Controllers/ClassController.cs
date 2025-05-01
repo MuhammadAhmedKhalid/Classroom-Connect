@@ -108,6 +108,8 @@ namespace ClassroomConnect.Controllers
 
                     _unitOfWork.Classes.Update(classFromDb, @class);
                     _unitOfWork.Save();
+
+                    TempData["success"] = "Class updated successfully";
                 }
                 catch (DbUpdateConcurrencyException)
                 {

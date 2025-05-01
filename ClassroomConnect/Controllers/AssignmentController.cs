@@ -2,6 +2,7 @@
 using Classroom.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace ClassroomConnect.Controllers
@@ -72,7 +73,42 @@ namespace ClassroomConnect.Controllers
         public IActionResult Edit(int? id)
         {
             ViewData["Title"] = "Edit Assignment";
-            return View();
+
+            if (id == null) return NotFound();
+            var assignment = _unitOfWork.Assignments.Get(a => a.Id == id);
+            if (assignment == null) return NotFound();
+            return View(assignment);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(int id, Assignment assignment)
+        {
+            if (id != assignment.Id) return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var assignmentFromDb = _unitOfWork.Assignments.Get(a => a.Id == id); 
+
+                    if (assignmentFromDb == null) return NotFound();
+
+                    _unitOfWork.Assignments.Update(assignmentFromDb, assignment);
+                    _unitOfWork.Save();
+
+                    TempData["success"] = "Assignment updated successfully";
+                    
+                    return RedirectToAction("Details", "Class", new { id = assignmentFromDb.ClassId });
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!(_unitOfWork.Assignments.Any(a => a.Id == id))) return NotFound();
+                    else throw;
+                }
+            }
+
+            return View(assignment);
         }
 
         [HttpPost]

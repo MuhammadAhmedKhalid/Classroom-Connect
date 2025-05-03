@@ -19,8 +19,8 @@
                     <a asp-action="Edit" asp-controller="Quiz" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-secondary me-2"><i class="bi bi-pencil-square"></i> Edit</a>
 
                     <button class="btn btn-sm btn-outline-danger delete-button"
-                            data-url="@Url.Action("Delete", "Quiz", new { id = @Model.Id })"
-                            data-item-name="quiz">
+                    data-url="@Url.Action("Delete", "Quiz", new { id = @Model.Id })"
+                    data-item-name="quiz">
                         <i class="bi bi-trash"></i> Delete
                     </button>
 
@@ -37,54 +37,71 @@
     </div>
 </div>
 
-@if (!isCreator)
-{
-    <div class="card mb-4">
-        <div class="card-header">
-            Submit Your Answers
-        </div>
-        <div class="card-body">
-            <div id="submissionArea">
-                @if (hasSubmitted)
+<div class="card mb-4">
+    <div class="card-header">
+        <span>@(isCreator ? "Questions & Answers" : "Submit Your Answers")</span>
+    </div>
+    <div class="card-body">
+        <div id="submissionArea">
+            @if (hasSubmitted && !isCreator)
+            {
+                <div class="alert alert-success" role="alert">
+                    <i class="bi bi-check-circle-fill me-2"></i>
+                    <strong>Submitted!</strong> You have already submitted this quiz.
+                </div>
+            }
+            else
+            {
+                @if (isClosed && !isCreator)
                 {
-                    <div class="alert alert-success" role="alert">
-                        <i class="bi bi-check-circle-fill me-2"></i>
-                        <strong>Submitted!</strong> You have already submitted this quiz.
+                    <div class="alert alert-warning" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <strong>Closed!</strong> This quiz is now closed for submissions.
                     </div>
                 }
                 else
                 {
-                    @if (isClosed)
+                    @if (Model.Questions != null && Model.Questions.Any())
                     {
-                        <div class="alert alert-warning" role="alert">
-                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                            <strong>Closed!</strong> This quiz is now closed for submissions.
-                        </div>
+                        <form method="post" asp-controller="QuizSubmission" asp-action="Submission" asp-route-id="@Model.Id">
+                            @Html.AntiForgeryToken()
+                            @for (int i = 0; i < Model.Questions.Count; i++)
+                            {
+                                <div class="mb-3">
+                                    <label class="form-label">
+                                        <strong>Question @(i + 1):</strong> @Model.Questions[i].Text
+                                    </label>
+
+                                    @if (isCreator)
+                                    {
+                                        @if (!string.IsNullOrWhiteSpace(Model.Questions[i].CorrectAnswer))
+                                        {
+                                            <p class="fw-bold">Correct Answer: @Model.Questions[i].CorrectAnswer</p>
+                                        }
+                                        else
+                                        {
+                                            <p class="text-muted">No answer provided.</p>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <textarea class="form-control" name="Answers[@i].AnswerText" rows="3" required></textarea>
+                                        <input type="hidden" name="Answers[@i].QuestionId" value="@Model.Questions[i].Id" />
+                                    }
+                                </div>
+                            }
+                            @if(!isCreator)
+                            {
+                                <button type="submit" class="btn btn-primary">Submit Answers</button>
+                            }
+                        </form>
                     }
                     else
                     {
-                        @if (Model.Questions != null && Model.Questions.Any())
-                        {
-                            <form method="post" asp-controller="QuizSubmission" asp-action="Submission" asp-route-id="@Model.Id">
-                                @Html.AntiForgeryToken()
-                                @for (int i = 0; i < Model.Questions.Count; i++)
-                                {
-                                    <div class="mb-3">
-                                        <label class="form-label"><strong>Question @(i + 1):</strong> @Model.Questions[i].Text</label>
-                                        <textarea class="form-control" name="Answers[@i].AnswerText" rows="3" required></textarea>
-                                        <input type="hidden" name="Answers[@i].QuestionId" value="@Model.Questions[i].Id" />
-                                    </div>
-                                }
-                                <button type="submit" class="btn btn-primary">Submit Answers</button>
-                            </form>
-                        }
-                        else
-                        {
-                            <p class="text-muted">No questions have been added to this quiz yet.</p>
-                        }
+                        <p class="text-muted">No questions have been added to this quiz yet.</p>
                     }
                 }
-            </div>
+            }
         </div>
     </div>
-}
+</div>

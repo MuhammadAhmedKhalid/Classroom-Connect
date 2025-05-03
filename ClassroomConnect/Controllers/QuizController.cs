@@ -115,7 +115,7 @@ namespace ClassroomConnect.Controllers
             return quiz;
         }
 
-        private bool IsQuizSubmitted(Quiz? quiz, string userId)
+        private bool IsQuizSubmitted(Quiz? quiz, string? userId)
         {
             return _unitOfWork.QuizSubmissions.Any(q => q.QuizId == quiz.Id && q.UserId.Equals(userId));
         }

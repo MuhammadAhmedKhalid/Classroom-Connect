@@ -54,7 +54,7 @@ namespace ClassroomConnect.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create([Bind("Title,Instructions,DueDate,CloseDate,ClassId, Questions")] Quiz quiz)
+        public IActionResult Create([Bind("Title,Instructions,DueDate,CloseDate,ClassId,Questions")] Quiz quiz)
         {
             if (ModelState.IsValid)
             {
@@ -92,12 +92,22 @@ namespace ClassroomConnect.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, Quiz quiz)
+        public IActionResult Edit(int id, [Bind("Id,Title,Instructions,DueDate,CloseDate,ClassId,Questions")] Quiz quiz)
         {
             if (id != quiz.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
+
+                if (quiz.DueDate == null)
+                    quiz.CloseDate = null;
+
+                if (quiz.Questions.Count == 0)
+                {
+                    ModelState.AddModelError("", "Please add at least one question before updating the quiz.");
+                    return View(quiz);
+                }
+
                 try
                 {
                     var quizFromDb = _unitOfWork.Quizzes.Get(q => q.Id == id);

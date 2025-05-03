@@ -32,8 +32,14 @@
                     <div class="d-flex w-100 justify-content-between">
                         <h5 class="mb-1">@quiz.Title</h5>
                         <small>
-                            Due Date: @quiz.DueDate.ToString() <br />
-                            Close Date: @quiz.CloseDate.ToString()
+                            @if (!string.IsNullOrWhiteSpace(quiz.DueDate.ToString()))
+                            {
+                                <span>Due Date: @quiz.DueDate.ToString()<br /></span>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(quiz.CloseDate.ToString()))
+                            {
+                                <span>Close Date: @quiz.CloseDate.ToString()</span>
+                            }
                         </small>
                     </div>
                     <p class="mb-1">@quiz.Instructions</p>

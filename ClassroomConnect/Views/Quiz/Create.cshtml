@@ -37,6 +37,26 @@
             </div>
 
             <div id="questions-container">
+                @if (Model.Questions != null)
+                {
+                    for (int i = 0; i < Model.Questions.Count; i++)
+                    {
+                        <div class="form-group question-group border rounded p-3 mb-3 position-relative">
+                            <input type="hidden" asp-for="Questions[i].Id" />
+                            <div class="form-group">
+                                <label>Question <span class="question-number">@(i + 1)</span></label>
+                                <input asp-for="Questions[i].Text" class="form-control question-text" />
+                                <span asp-validation-for="Questions[i].Text" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label>Correct Answer</label>
+                                <input asp-for="Questions[i].CorrectAnswer" class="form-control correct-answer" />
+                                <span asp-validation-for="Questions[i].CorrectAnswer" class="text-danger"></span>
+                            </div>
+                            <button type="button" class="btn btn-danger btn-sm remove-question-button mt-2">Remove</button>
+                        </div>
+                    }
+                }
             </div>
 
             <div class="form-group mt-2 mb-2">
@@ -61,6 +81,12 @@
             const addQuestionButton = document.getElementById('add-question-button');
             const questionsContainer = document.getElementById('questions-container');
 
+            if (dueDateInput.value) {
+                closeDateInput.readOnly = false;
+            } else {
+                closeDateInput.readOnly = true;
+            }
+
             dueDateInput.addEventListener('change', function () {
                 closeDateInput.readOnly = !this.value;
                 if (!this.value) {
@@ -68,29 +94,74 @@
                 }
             });
 
-            let questionCount = 0;
+            let questionCount = @Model.Questions?.Count ?? 0;
+
+            function renumberQuestions() {
+                const questionGroups = questionsContainer.querySelectorAll('.question-group');
+                questionGroups.forEach((group, index) => {
+                    group.querySelector('.question-number').textContent = index + 1;
+
+                    const textInput = group.querySelector('.question-text');
+                    const answerInput = group.querySelector('.correct-answer');
+                    const hiddenIdInput = group.querySelector('input[type="hidden"]');
+
+                    textInput.name = `Questions[${index}].Text`;
+                    textInput.id = `Questions_${index}__Text`;
+
+                    answerInput.name = `Questions[${index}].CorrectAnswer`;
+                    answerInput.id = `Questions_${index}__CorrectAnswer`;
+
+                    if (hiddenIdInput) {
+                        hiddenIdInput.name = `Questions[${index}].Id`;
+                        hiddenIdInput.id = `Questions_${index}__Id`;
+                    }
+
+                    const validationSpans = group.querySelectorAll('span[data-valmsg-for]');
+                    validationSpans[0].setAttribute('data-valmsg-for', `Questions[${index}].Text`);
+                    validationSpans[1].setAttribute('data-valmsg-for', `Questions[${index}].CorrectAnswer`);
+                });
+
+                questionCount = questionGroups.length;
+            }
+
+            document.querySelectorAll('.question-group').forEach(group => {
+                const textInput = group.querySelector('.question-text');
+                textInput.addEventListener('input', () => {
+                    const span = group.querySelector('span[data-valmsg-for*="Text"]');
+                    if (!textInput.value.trim()) {
+                        span.textContent = 'Question text is required.';
+                        textInput.classList.add('input-validation-error');
+                    } else {
+                        span.textContent = '';
+                        textInput.classList.remove('input-validation-error');
+                    }
+                });
+            });
 
             addQuestionButton.addEventListener('click', function () {
-                questionCount++;
+                const newIndex = questionCount;
                 const questionDiv = document.createElement('div');
-                questionDiv.className = 'form-group question-group';
+                questionDiv.className = 'form-group question-group border rounded p-3 mb-3 position-relative';
                 questionDiv.innerHTML = `
+                    <input type="hidden" name="Questions[${newIndex}].Id" value="0" />
                     <div class="form-group">
-                        <label for="Questions_${questionCount - 1}__Text">Question ${questionCount}</label>
-                        <input type="text" id="Questions_${questionCount - 1}__Text" name="Questions[${questionCount - 1}].Text" class="form-control" />
-                        <span class="text-danger" data-valmsg-for="Questions[${questionCount - 1}].Text"></span>
+                        <label>Question <span class="question-number">${newIndex + 1}</span></label>
+                        <input type="text" name="Questions[${newIndex}].Text" class="form-control question-text" />
+                        <span class="text-danger field-validation-valid" data-valmsg-for="Questions[${newIndex}].Text" data-valmsg-replace="true"></span>
                     </div>
                     <div class="form-group">
-                        <label for="Questions_${questionCount - 1}__CorrectAnswer">Correct Answer</label>
-                        <input type="text" id="Questions_${questionCount - 1}__CorrectAnswer" name="Questions[${questionCount - 1}].CorrectAnswer" class="form-control" />
-                        <span class="text-danger" data-valmsg-for="Questions[${questionCount - 1}].CorrectAnswer"></span>
+                        <label>Correct Answer</label>
+                        <input type="text" name="Questions[${newIndex}].CorrectAnswer" class="form-control correct-answer" />
+                        <span class="text-danger field-validation-valid" data-valmsg-for="Questions[${newIndex}].CorrectAnswer" data-valmsg-replace="true"></span>
                     </div>
+                    <button type="button" class="btn btn-danger btn-sm remove-question-button mt-2">Remove</button>
                 `;
                 questionsContainer.appendChild(questionDiv);
+                questionCount++;
 
-                const questionInput = questionDiv.querySelector(`#Questions_${questionCount - 1}__Text`);
+                const questionInput = questionDiv.querySelector('.question-text');
                 questionInput.addEventListener('input', () => {
-                    const span = questionDiv.querySelector(`[data-valmsg-for="Questions[${questionCount - 1}].Text"]`);
+                    const span = questionDiv.querySelector('span[data-valmsg-for*="Text"]');
                     if (!questionInput.value.trim()) {
                         span.textContent = 'Question text is required.';
                         questionInput.classList.add('input-validation-error');
@@ -99,6 +170,16 @@
                         questionInput.classList.remove('input-validation-error');
                     }
                 });
+            });
+
+            questionsContainer.addEventListener('click', function (e) {
+                if (e.target && e.target.classList.contains('remove-question-button')) {
+                    const questionGroup = e.target.closest('.question-group');
+                    if (questionGroup) {
+                        questionGroup.remove();
+                        renumberQuestions();
+                    }
+                }
             });
         });
     </script>

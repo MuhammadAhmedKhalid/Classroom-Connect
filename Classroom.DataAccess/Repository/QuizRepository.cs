@@ -20,7 +20,43 @@ namespace Classroom.DataAccess.Repository
             quizFromDb.Instructions = quiz.Instructions ?? string.Empty;
             quizFromDb.DueDate = quiz.DueDate;
             quizFromDb.CloseDate = quiz.CloseDate;
+
+            var existingQuestions = _db.QuizQuestions.Where(q => q.QuizId == quizFromDb.Id).ToList();
+
+            foreach (var updatedQuestion in quiz.Questions)
+            {
+                if (updatedQuestion.Id == 0)
+                {
+                    // New question
+                    quizFromDb.Questions.Add(new QuizQuestion
+                    {
+                        Text = updatedQuestion.Text,
+                        CorrectAnswer = updatedQuestion.CorrectAnswer,
+                        QuizId = quizFromDb.Id
+                    });
+                }
+                else
+                {
+                    // Update existing question
+                    var existing = existingQuestions.FirstOrDefault(q => q.Id == updatedQuestion.Id);
+                    if (existing != null)
+                    {
+                        existing.Text = updatedQuestion.Text;
+                        existing.CorrectAnswer = updatedQuestion.CorrectAnswer;
+                    }
+                }
+            }
+
+            // Remove deleted questions
+            foreach (var existing in existingQuestions)
+            {
+                if (!quiz.Questions.Any(q => q.Id == existing.Id))
+                {
+                    _db.QuizQuestions.Remove(existing);
+                }
+            }
         }
+
 
     }
 }

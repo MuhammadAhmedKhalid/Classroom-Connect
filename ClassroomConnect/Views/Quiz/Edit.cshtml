@@ -38,19 +38,25 @@
             </div>
 
             <div id="questions-container">
-                @for (var i = 0; i < Model.Questions.Count; i++)
+                @if (Model.Questions != null)
                 {
-                    <div class="form-group question-group">
-                        <input type="hidden" asp-for="Questions[i].Id" />
-                        <div class="form-group">
-                            <label asp-for="Questions[i].Text">Question @(i + 1)</label>
-                            <input asp-for="Questions[i].Text" class="form-control" />
+                    @for (var i = 0; i < Model.Questions.Count; i++)
+                    {
+                        <div class="form-group question-group border rounded p-3 mb-3 position-relative" data-question-id="@Model.Questions[i].Id">
+                            <input type="hidden" asp-for="Questions[i].Id" />
+                            <div class="form-group">
+                                <label>Question <span class="question-number">@(i + 1)</span></label>
+                                <input asp-for="Questions[i].Text" class="form-control question-text" />
+                                <span class="text-danger field-validation-valid" data-valmsg-for="Questions[@i].Text" data-valmsg-replace="true"></span>
+                            </div>
+                            <div class="form-group">
+                                <label>Correct Answer</label>
+                                <input asp-for="Questions[i].CorrectAnswer" class="form-control correct-answer" />
+                                <span class="text-danger field-validation-valid" data-valmsg-for="Questions[@i].CorrectAnswer" data-valmsg-replace="true"></span>
+                            </div>
+                            <button type="button" class="btn btn-danger btn-sm remove-question-button mt-2">Remove</button>
                         </div>
-                        <div class="form-group">
-                            <label asp-for="Questions[i].CorrectAnswer">Correct Answer</label>
-                            <input asp-for="Questions[i].CorrectAnswer" class="form-control" />
-                        </div>
-                    </div>
+                    }
                 }
             </div>
 
@@ -90,29 +96,63 @@
                 }
             });
 
-            let questionCount = @Model.Questions.Count;
+            let questionCount = @Model.Questions?.Count ?? 0;
+            let questionIndex = questionCount;
+
+            function renumberQuestions() {
+                const questionGroups = questionsContainer.querySelectorAll('.question-group');
+                let currentIndex = 0;
+
+                questionGroups.forEach((group) => {
+                    group.querySelector('.question-number').textContent = currentIndex + 1;
+
+                    const textInput = group.querySelector('.question-text');
+                    const answerInput = group.querySelector('.correct-answer');
+                    const hiddenIdInput = group.querySelector('input[type="hidden"]');
+
+                    textInput.name = `Questions[${currentIndex}].Text`;
+                    textInput.id = `Questions_${currentIndex}__Text`;
+
+                    answerInput.name = `Questions[${currentIndex}].CorrectAnswer`;
+                    answerInput.id = `Questions_${currentIndex}__CorrectAnswer`;
+
+                    hiddenIdInput.name = `Questions[${currentIndex}].Id`;
+                    hiddenIdInput.id = `Questions_${currentIndex}__Id`;
+
+                    const spans = group.querySelectorAll('span[data-valmsg-for]');
+                    spans[0].setAttribute('data-valmsg-for', `Questions[${currentIndex}].Text`);
+                    spans[1].setAttribute('data-valmsg-for', `Questions[${currentIndex}].CorrectAnswer`);
+
+                    currentIndex++;
+                });
+
+                questionCount = currentIndex;
+            }
 
             addQuestionButton.addEventListener('click', function () {
-                questionCount++;
+                const newIndex = questionCount;
                 const questionDiv = document.createElement('div');
-                questionDiv.className = 'form-group question-group';
+                questionDiv.className = 'form-group question-group border rounded p-3 mb-3 position-relative';
                 questionDiv.innerHTML = `
+                    <input type="hidden" name="Questions[${newIndex}].Id" value="0" />
                     <div class="form-group">
-                        <label for="Questions_${questionCount - 1}__Text">Question ${questionCount}</label>
-                        <input type="text" id="Questions_${questionCount - 1}__Text" name="Questions[${questionCount - 1}].Text" class="form-control" />
-                        <span class="text-danger" data-valmsg-for="Questions[${questionCount - 1}].Text"></span>
+                        <label>Question <span class="question-number">${newIndex + 1}</span></label>
+                        <input type="text" name="Questions[${newIndex}].Text" class="form-control question-text" />
+                        <span class="text-danger field-validation-valid" data-valmsg-for="Questions[${newIndex}].Text" data-valmsg-replace="true"></span>
                     </div>
                     <div class="form-group">
-                        <label for="Questions_${questionCount - 1}__CorrectAnswer">Correct Answer</label>
-                        <input type="text" id="Questions_${questionCount - 1}__CorrectAnswer" name="Questions[${questionCount - 1}].CorrectAnswer" class="form-control" />
-                        <span class="text-danger" data-valmsg-for="Questions[${questionCount - 1}].CorrectAnswer"></span>
+                        <label>Correct Answer</label>
+                        <input type="text" name="Questions[${newIndex}].CorrectAnswer" class="form-control correct-answer" />
+                        <span class="text-danger field-validation-valid" data-valmsg-for="Questions[${newIndex}].CorrectAnswer" data-valmsg-replace="true"></span>
                     </div>
+                    <button type="button" class="btn btn-danger btn-sm remove-question-button mt-2">Remove</button>
                 `;
                 questionsContainer.appendChild(questionDiv);
+                questionCount++;
 
-                const questionInput = questionDiv.querySelector(`#Questions_${questionCount - 1}__Text`);
+                const questionInput = questionDiv.querySelector('.question-text');
                 questionInput.addEventListener('input', () => {
-                    const span = questionDiv.querySelector(`[data-valmsg-for="Questions[${questionCount - 1}].Text"]`);
+                    const span = questionDiv.querySelector(`[data-valmsg-for="Questions[${newIndex}].Text"]`);
                     if (!questionInput.value.trim()) {
                         span.textContent = 'Question text is required.';
                         questionInput.classList.add('input-validation-error');
@@ -121,6 +161,16 @@
                         questionInput.classList.remove('input-validation-error');
                     }
                 });
+            });
+
+            questionsContainer.addEventListener('click', function (e) {
+                if (e.target && e.target.classList.contains('remove-question-button')) {
+                    const questionGroup = e.target.closest('.question-group');
+                    if (questionGroup) {
+                        questionGroup.remove();
+                        renumberQuestions(); 
+                    }
+                }
             });
         });
     </script>

@@ -14,10 +14,13 @@ namespace Classroom.DataAccess.Repository
             _db = db;
         }
 
-        //public void Update(Quiz quiz)
-        //{
-
-        //}
+        public void Update(Quiz quizFromDb, Quiz quiz)
+        {
+            quizFromDb.Title = quiz.Title;
+            quizFromDb.Instructions = quiz.Instructions ?? string.Empty;
+            quizFromDb.DueDate = quiz.DueDate;
+            quizFromDb.CloseDate = quiz.CloseDate;
+        }
 
     }
 }

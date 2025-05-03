@@ -4,6 +4,6 @@ namespace Classroom.DataAccess.Repository.IRepository
 {
     public interface IQuizRepository : IRepository<Quiz>
     {
-        //void Update(Quiz quiz);
+        void Update(Quiz quizFromDb, Quiz quiz);
     }
 }

@@ -1,1 +1,127 @@
-﻿<h1 class="mb-4">@ViewData["Title"]</h1>
+﻿@model Classroom.Models.Quiz
+
+@{
+    ViewData["Title"] ??= "Edit Quiz";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<hr />
+
+<div class="row">
+    <div class="col-md-8">
+        <form asp-action="Edit">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="All" class="text-danger"></div>
+
+            <input asp-for="Id" type="hidden" />
+            <input asp-for="ClassId" type="hidden" />
+
+            <div class="form-group">
+                <label asp-for="Title" class="control-label"></label>
+                <input asp-for="Title" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Instructions" class="control-label"></label>
+                <textarea asp-for="Instructions" class="form-control" style="height: 100px;"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="DueDate" class="control-label"></label>
+                <input asp-for="DueDate" class="form-control" type="datetime-local" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="CloseDate" class="control-label"></label>
+                <input asp-for="CloseDate" class="form-control" type="datetime-local" readonly />
+            </div>
+
+            <div id="questions-container">
+                @for (var i = 0; i < Model.Questions.Count; i++)
+                {
+                    <div class="form-group question-group">
+                        <input type="hidden" asp-for="Questions[i].Id" />
+                        <div class="form-group">
+                            <label asp-for="Questions[i].Text">Question @(i + 1)</label>
+                            <input asp-for="Questions[i].Text" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Questions[i].CorrectAnswer">Correct Answer</label>
+                            <input asp-for="Questions[i].CorrectAnswer" class="form-control" />
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="form-group mt-2 mb-2">
+                <button type="button" id="add-question-button" class="btn btn-secondary">Add Question</button>
+            </div>
+
+            <div class="form-group mt-2 mb-2">
+                <input type="submit" value="Save" class="btn btn-primary" />
+                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const dueDateInput = document.getElementById('DueDate');
+            const closeDateInput = document.getElementById('CloseDate');
+            const addQuestionButton = document.getElementById('add-question-button');
+            const questionsContainer = document.getElementById('questions-container');
+
+            if (dueDateInput.value) {
+                closeDateInput.readOnly = false;
+            } else {
+                closeDateInput.readOnly = true;
+            }
+
+            dueDateInput.addEventListener('change', function () {
+                closeDateInput.readOnly = !this.value;
+                if (!this.value) {
+                    closeDateInput.value = '';
+                }
+            });
+
+            let questionCount = @Model.Questions.Count;
+
+            addQuestionButton.addEventListener('click', function () {
+                questionCount++;
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'form-group question-group';
+                questionDiv.innerHTML = `
+                    <div class="form-group">
+                        <label for="Questions_${questionCount - 1}__Text">Question ${questionCount}</label>
+                        <input type="text" id="Questions_${questionCount - 1}__Text" name="Questions[${questionCount - 1}].Text" class="form-control" />
+                        <span class="text-danger" data-valmsg-for="Questions[${questionCount - 1}].Text"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="Questions_${questionCount - 1}__CorrectAnswer">Correct Answer</label>
+                        <input type="text" id="Questions_${questionCount - 1}__CorrectAnswer" name="Questions[${questionCount - 1}].CorrectAnswer" class="form-control" />
+                        <span class="text-danger" data-valmsg-for="Questions[${questionCount - 1}].CorrectAnswer"></span>
+                    </div>
+                `;
+                questionsContainer.appendChild(questionDiv);
+
+                const questionInput = questionDiv.querySelector(`#Questions_${questionCount - 1}__Text`);
+                questionInput.addEventListener('input', () => {
+                    const span = questionDiv.querySelector(`[data-valmsg-for="Questions[${questionCount - 1}].Text"]`);
+                    if (!questionInput.value.trim()) {
+                        span.textContent = 'Question text is required.';
+                        questionInput.classList.add('input-validation-error');
+                    } else {
+                        span.textContent = '';
+                        questionInput.classList.remove('input-validation-error');
+                    }
+                });
+            });
+        });
+    </script>
+}

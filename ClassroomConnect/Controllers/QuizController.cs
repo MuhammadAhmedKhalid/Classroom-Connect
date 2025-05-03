@@ -1,5 +1,4 @@
-﻿using Classroom.DataAccess.Data;
-using Classroom.DataAccess.Repository.IRepository;
+﻿using Classroom.DataAccess.Repository.IRepository;
 using Classroom.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,6 +22,8 @@ namespace ClassroomConnect.Controllers
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var quiz = GetQuiz(id);
+
+            if (quiz == null) return NotFound();
 
             if (currentUserId == quiz?.Class?.CreatedById)
                 ViewBag.isCreator = true;
@@ -81,7 +82,43 @@ namespace ClassroomConnect.Controllers
         public IActionResult Edit(int? id)
         {
             ViewData["Title"] = "Edit Quiz";
-            return View();
+
+            if (id == null) return NotFound();
+            var quiz = GetQuiz(id);
+            if (quiz == null) return NotFound();
+
+            return View(quiz);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(int id, Quiz quiz)
+        {
+            if (id != quiz.Id) return NotFound();
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    var quizFromDb = _unitOfWork.Quizzes.Get(q => q.Id == id);
+
+                    if (quizFromDb == null) return NotFound();
+
+                    _unitOfWork.Quizzes.Update(quizFromDb, quiz);
+                    _unitOfWork.Save();
+
+                    TempData["success"] = "Quiz updated successfully";
+
+                    return RedirectToAction("Details", "Quiz", new { id = quizFromDb.Id });
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!(_unitOfWork.Quizzes.Any(q => q.Id == id))) return NotFound();
+                    else throw;
+                }
+            }
+
+            return View(quiz);
         }
 
         [HttpPost]

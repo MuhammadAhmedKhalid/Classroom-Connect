@@ -30,8 +30,8 @@
         </div>
 
         <p class="card-text"><strong>Instructions:</strong> @(string.IsNullOrEmpty(Model.Instructions) ? "No instructions provided." : Model.Instructions)</p>
-        <p class="card-text"><strong>Due Date:</strong> @(Model.DueDate.HasValue ? Model.DueDate.Value.ToString("MMMM dd,<ctrl3348> hh:mm tt") : "Not set")</p>
-        <p class="card-text"><strong>Close Date:</strong> @(Model.CloseDate.HasValue ? Model.CloseDate.Value.ToString("MMMM dd,<ctrl3348> hh:mm tt") : "Not set")</p>
+        <p class="card-text"><strong>Due Date:</strong> @(Model.DueDate.HasValue ? Model.DueDate.Value.ToString("MMMM dd, yyyy hh:mm tt") : "Not set")</p>
+        <p class="card-text"><strong>Close Date:</strong> @(Model.CloseDate.HasValue ? Model.CloseDate.Value.ToString("MMMM dd, yyyy hh:mm tt") : "Not set")</p>
         <p class="card-text"><strong>Posted At:</strong> @Model.PostedAt?.ToString("MMMM dd, yyyy hh:mm tt")</p>
         <p class="card-text"><strong>Class:</strong> @Model.Class?.Name</p>
     </div>

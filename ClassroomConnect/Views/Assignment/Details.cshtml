@@ -90,6 +90,8 @@
     <script>
         const assignmentId = @Model.Id;
         const submissionArea = document.getElementById('submissionArea');
+        const initialRemainingSeconds = @(ViewBag.RemainingSeconds ?? 0); 
+        const isAssignmentInitiallyClosed = @(ViewBag.IsClosed?.ToString().ToLower() ?? "false");
 
         let intervalId = null;
 
@@ -115,8 +117,17 @@
                 });
         }
 
-        checkAssignmentStatus();
-        intervalId = setInterval(checkAssignmentStatus, 30000);
+        if (parseInt(initialRemainingSeconds) > 0) {
+            checkAssignmentStatus(); 
+            intervalId = setInterval(checkAssignmentStatus, parseInt(initialRemainingSeconds) * 1000);
+        } else if (isAssignmentInitiallyClosed === 'true') {
+            submissionArea.innerHTML = `
+                <div class="alert alert-warning" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <strong>Closed!</strong> This assignment is now closed for submissions.
+                </div>
+            `;
+        }
 
         document.querySelector('form')?.addEventListener('submit', function (e) {
             const fileInput = document.getElementById('WordDocument');

@@ -67,6 +67,24 @@ namespace ClassroomConnect.Controllers
             ViewBag.HasSubmitted = _unitOfWork.AssignmentSubmissions.Any(s => s.AssignmentId == id && s.UserId == currentUserId);
             ViewBag.IsClosed = IsAssignmentClosed(assignment);
 
+            if (assignment?.CloseDate.HasValue == true && !ViewBag.IsClosed)
+            {
+                var remainingTime = assignment.CloseDate.Value - DateTime.Now;
+                if (remainingTime.TotalSeconds > 0)
+                {
+                    ViewBag.RemainingSeconds = (int)Math.Ceiling(remainingTime.TotalSeconds);
+                }
+                else
+                {
+                    ViewBag.RemainingSeconds = 0; 
+                    ViewBag.IsClosed = true; 
+                }
+            }
+            else
+            {
+                ViewBag.RemainingSeconds = 0;
+            }
+
             return View(assignment);
         }
 

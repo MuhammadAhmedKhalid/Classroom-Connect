@@ -35,12 +35,16 @@ namespace ClassroomConnect.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create([Bind("Title,Instructions,DueDate,CloseDate,ClassId")] Assignment assignment)
         {
+            if (assignment.DueDate == null)
+                assignment.CloseDate = null;
+
+            if (assignment.CloseDate != null && assignment.DueDate != null && assignment.CloseDate < assignment.DueDate)
+            {
+                ModelState.AddModelError("CloseDate", "Close Date must be equal to or later than Due Date.");
+            }
+
             if (ModelState.IsValid)
             {
-
-                if (assignment.DueDate == null)
-                    assignment.CloseDate = null;
-
                 assignment.Instructions ??= string.Empty;
                 assignment.PostedAt = DateTime.Now;
 
@@ -51,8 +55,10 @@ namespace ClassroomConnect.Controllers
 
                 return RedirectToAction("Details", "Class", new { id = assignment.ClassId });
             }
+
             return View(assignment);
         }
+
 
         public IActionResult Details(int? id)
         {

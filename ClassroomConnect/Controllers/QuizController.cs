@@ -56,11 +56,16 @@ namespace ClassroomConnect.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create([Bind("Title,Instructions,DueDate,CloseDate,ClassId,Questions")] Quiz quiz)
         {
+            if (quiz.DueDate == null)
+                quiz.CloseDate = null;
+
+            if (quiz.CloseDate != null && quiz.DueDate != null && quiz.CloseDate < quiz.DueDate)
+            {
+                ModelState.AddModelError("CloseDate", "Close Date must be equal to or later than Due Date.");
+            }
+
             if (ModelState.IsValid)
             {
-                if (quiz.DueDate == null)
-                    quiz.CloseDate = null;
-
                 if (quiz.Questions.Count == 0)
                 {
                     ModelState.AddModelError("", "Please add at least one question before creating the quiz.");
@@ -76,6 +81,7 @@ namespace ClassroomConnect.Controllers
 
                 return RedirectToAction("Details", "Class", new { id = quiz.ClassId });
             }
+
             return View(quiz);
         }
 

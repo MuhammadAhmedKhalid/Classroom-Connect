@@ -52,6 +52,12 @@
             const dueDateInput = document.getElementById('DueDate');
             const closeDateInput = document.getElementById('CloseDate');
 
+            if (dueDateInput.value) {
+                closeDateInput.readOnly = false;
+            } else {
+                closeDateInput.readOnly = true;
+            }
+
             dueDateInput.addEventListener('change', function () {
                 closeDateInput.readOnly = !this.value;
                 if (!this.value) {

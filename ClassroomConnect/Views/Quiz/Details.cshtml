@@ -105,3 +105,49 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        const quizId = @Model.Id;
+        const submissionArea = document.getElementById('submissionArea');
+        const initialRemainingSeconds = @(ViewBag.RemainingSeconds ?? 0);
+        const isQuizInitiallyClosed = @(ViewBag.IsClosed?.ToString().ToLower() ?? "false");
+
+        let intervalId = null;
+
+        function checkQuizStatus() {
+            console.log("here");
+            fetch(`/Quiz/IsQuizClosed?id=${quizId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.isClosed) {
+                        submissionArea.innerHTML = `
+                            <div class="alert alert-warning" role="alert">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                <strong>Closed!</strong> This quiz is now closed for submissions.
+                            </div>
+                        `;
+                        if (intervalId !== null) {
+                            clearInterval(intervalId);
+                            intervalId = null;
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error("Error checking quiz status:", error);
+                });
+        }
+
+        if (parseInt(initialRemainingSeconds) > 0) {
+            checkQuizStatus();
+            intervalId = setInterval(checkQuizStatus, parseInt(initialRemainingSeconds) * 1000);
+        } else if (isQuizInitiallyClosed === 'true') {
+            submissionArea.innerHTML = `
+                <div class="alert alert-warning" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <strong>Closed!</strong> This quiz is now closed for submissions.
+                </div>
+            `;
+        }
+    </script>
+}

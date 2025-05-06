@@ -1,10 +1,8 @@
-﻿using Classroom.DataAccess.Data;
-using Classroom.DataAccess.Repository.IRepository;
+﻿using Classroom.DataAccess.Repository.IRepository;
 using Classroom.Models;
 using Classroom.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 namespace ClassroomConnect.Controllers
@@ -69,13 +67,18 @@ namespace ClassroomConnect.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Submission(int id, QuizSubmissionVM model)
         {
-            // if is submission closed then dont allow 
-
             var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var quiz = _unitOfWork.Quizzes.Get(q => q.Id == id, includeProperties: "Class");
 
             if (quiz == null) return NotFound();
 
+            bool isQuizClosed = quiz?.CloseDate.HasValue == true && quiz.CloseDate < DateTime.Now; ;
+
+            if (isQuizClosed)
+            {
+                ModelState.AddModelError("", "This quiz is now closed for submissions.");
+                return RedirectToAction("Details", "Quiz", new { id });
+            }
 
             if (ModelState.IsValid)
             {

@@ -110,11 +110,16 @@ namespace ClassroomConnect.Controllers
         {
             if (id != assignment.Id) return NotFound();
 
+            if (assignment.CloseDate != null && assignment.DueDate != null && assignment.CloseDate < assignment.DueDate)
+            {
+                ModelState.AddModelError("CloseDate", "Close Date must be equal to or later than Due Date.");
+            }
+
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var assignmentFromDb = _unitOfWork.Assignments.Get(a => a.Id == id); 
+                    var assignmentFromDb = _unitOfWork.Assignments.Get(a => a.Id == id);
 
                     if (assignmentFromDb == null) return NotFound();
 
@@ -122,12 +127,12 @@ namespace ClassroomConnect.Controllers
                     _unitOfWork.Save();
 
                     TempData["success"] = "Assignment updated successfully";
-                    
+
                     return RedirectToAction("Details", "Class", new { id = assignmentFromDb.ClassId });
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!(_unitOfWork.Assignments.Any(a => a.Id == id))) return NotFound();
+                    if (!_unitOfWork.Assignments.Any(a => a.Id == id)) return NotFound();
                     else throw;
                 }
             }

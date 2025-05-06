@@ -31,6 +31,24 @@ namespace ClassroomConnect.Controllers
             ViewBag.HasSubmitted = IsQuizSubmitted(quiz, currentUserId);
             ViewBag.IsClosed = IsQuizClosed(quiz);
 
+            if (quiz?.CloseDate.HasValue == true && !ViewBag.IsClosed)
+            {
+                var remainingTime = quiz.CloseDate.Value - DateTime.Now;
+                if (remainingTime.TotalSeconds > 0)
+                {
+                    ViewBag.RemainingSeconds = (int)Math.Ceiling(remainingTime.TotalSeconds);
+                }
+                else
+                {
+                    ViewBag.RemainingSeconds = 0;
+                    ViewBag.IsClosed = true;
+                }
+            }
+            else
+            {
+                ViewBag.RemainingSeconds = 0;
+            }
+
             return View(quiz);
         }
 
@@ -102,9 +120,13 @@ namespace ClassroomConnect.Controllers
         {
             if (id != quiz.Id) return NotFound();
 
+            if (quiz.CloseDate != null && quiz.DueDate != null && quiz.CloseDate < quiz.DueDate)
+            {
+                ModelState.AddModelError("CloseDate", "Close Date must be equal to or later than Due Date.");
+            }
+
             if (ModelState.IsValid)
             {
-
                 if (quiz.DueDate == null)
                     quiz.CloseDate = null;
 
@@ -129,7 +151,7 @@ namespace ClassroomConnect.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!(_unitOfWork.Quizzes.Any(q => q.Id == id))) return NotFound();
+                    if (!_unitOfWork.Quizzes.Any(q => q.Id == id)) return NotFound();
                     else throw;
                 }
             }
@@ -154,6 +176,14 @@ namespace ClassroomConnect.Controllers
             _unitOfWork.Save();
 
             return Json(new { redirectUrl = Url.Action("Details", "Class", new { id = classId }) });
+        }
+
+        [HttpGet]
+        public JsonResult IsQuizClosed(int id)
+        {
+            var quiz = _unitOfWork.Quizzes.Get(q => q.Id == id);
+            bool isClosed = IsQuizClosed(quiz);
+            return Json(new { isClosed });
         }
 
         #region Helper methods

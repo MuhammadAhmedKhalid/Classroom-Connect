@@ -1,12 +1,12 @@
-﻿function showDeleteConfirmation(deleteUrl, itemName) {
+﻿function showDeleteConfirmation(deleteUrl, itemName, customTitle) {
     Swal.fire({
-        title: `Are you sure you want to delete this ${itemName}?`,
+        title: customTitle !== null ? customTitle : `Are you sure you want to delete this ${itemName}?`,
         text: "You won't be able to revert this!",
         icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",
-        confirmButtonText: `Yes, delete the ${itemName}!`
+        confirmButtonText: customTitle !== null ? "Yes, remove!" : `Yes, delete the ${itemName}!`
     }).then((result) => {
         if (result.isConfirmed) {
             const antiForgeryToken = document.querySelector('input[name="__RequestVerificationToken"]').value;
@@ -54,6 +54,8 @@ $(document).ready(function () {
     $('.delete-button').click(function () {
         const deleteUrl = $(this).data('url');
         const itemName = $(this).data('item-name') || 'item';
-        showDeleteConfirmation(deleteUrl, itemName);
+        const customTitle = $(this).data('title') || null;
+
+        showDeleteConfirmation(deleteUrl, itemName, customTitle);
     });
 });

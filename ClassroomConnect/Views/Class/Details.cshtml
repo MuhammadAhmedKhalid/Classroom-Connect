@@ -37,11 +37,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             const classTabs = document.getElementById('classTabs');
 
-            // Function to show tab based on hash
             function showTabFromHash() {
                 const hash = window.location.hash;
 
-                // Remove active class from all tabs and panes first
                 classTabs.querySelectorAll('.nav-link').forEach(link => {
                     link.classList.remove('active');
                 });
@@ -54,7 +52,6 @@
                     const tabLink = classTabs.querySelector(`[href="${hash}"]`);
 
                     if (tabLink) {
-                        // Activate the target tab
                         tabLink.classList.add('active');
 
                         const targetPane = document.querySelector(hash);
@@ -63,7 +60,6 @@
                         }
                     }
                 } else {
-                    // If hash is empty, default to #info tab
                     const defaultTab = classTabs.querySelector('[href="#info"]');
                     if (defaultTab) {
                         defaultTab.classList.add('active');
@@ -72,15 +68,12 @@
                 }
             }
 
-            // Initial tab setup
             showTabFromHash();
 
-            // Update URL hash when tab changes
             classTabs.querySelectorAll('.nav-link').forEach(tab => {
                 tab.addEventListener('click', function(event) {
                     const href = this.getAttribute('href');
 
-                    // Don't do anything if clicking #info tab and hash is already empty
                     if (href === "#info" && !window.location.hash) {
                         event.preventDefault();
                         return;
@@ -90,7 +83,6 @@
                 });
             });
 
-            // Listen for hash changes (back/forward buttons)
             window.addEventListener('hashchange', function(event) {
                 showTabFromHash();
             });

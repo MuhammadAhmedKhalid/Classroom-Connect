@@ -7,12 +7,25 @@
 
 @{
     var currentUser = await UserManager.GetUserAsync(User);
+    var isClassCreator = Model.Class?.CreatedById == currentUser?.Id;
 }
+
+<form id="anti-forgery-form" style="display:none;">
+    @Html.AntiForgeryToken()
+</form>
 
 <div class="class-section p-4 border rounded">
     <div class="d-flex justify-content-between align-items-center">
         <h2 class="section-header">Class Members</h2>
-        <span class="badge bg-primary">@Model.ClassMembers?.Count members</span>
+        <div>
+            <span class="badge bg-primary me-2">@Model.ClassMembers?.Count members</span>
+            @* @if (isClassCreator) *@
+            @* { *@
+            @*     <a asp-action="AddMember" asp-controller="Class" asp-route-classId="@Model.Class.Id" class="btn btn-sm btn-success"> *@
+            @*         + Add Member *@
+            @*     </a> *@
+            @* } *@
+        </div>
     </div>
     <hr />
 
@@ -24,19 +37,39 @@
                     <th>Name</th>
                     <th>Email</th>
                     <th>Joined Date</th>
+                    @if (isClassCreator)
+                    {
+                        <th>Actions</th> 
+                    }
                 </tr>
             </thead>
             <tbody>
                 @foreach (var member in Model.ClassMembers)
                 {
+                    var isMe = member.User?.Id == currentUser?.Id;
+
                     <tr>
                         <td>
                             @member.User?.Name
-                            @(member.User?.Id == currentUser?.Id ? " (Me)" : "")
-                            @(member.User?.Id == Model.Class?.CreatedById ? " (Creator)" : "")
+                            @(isMe ? " (Me)" : "")
                         </td>
                         <td>@member.User?.Email</td>
                         <td>@member.JoinedAt.ToString("MMM dd, yyyy")</td>
+                        <td>
+                            @if (isClassCreator)
+                            {
+                                <form asp-action="RemoveMember" asp-controller="Class" method="post" class="d-inline">
+                                    <input type="hidden" name="classId" value="@Model.Class.Id" />
+                                    <input type="hidden" name="memberId" value="@member.User?.Id" />
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-danger delete-button"
+                                            data-url="@Url.Action("RemoveMember", "Class", new { classId = Model.Class.Id, memberId = member.User?.Id })"
+                                            data-title='Are you sure you want to remove @member.User?.Name?'>
+                                        <i class="bi bi-person-x"></i> Remove
+                                    </button>
+                                </form>
+                            }
+                        </td>
                     </tr>
                 }
             </tbody>

@@ -127,15 +127,35 @@ namespace ClassroomConnect.Controllers
         {
             var @class = _unitOfWork.Classes.Get(c => c.Id == id);
 
-            if (@class == null)
-            {
-                return Json(new { success = false, message = "Class not found." });
-            }
+            if (@class == null) return Json(new { success = false, message = "Class not found." });
 
             _unitOfWork.Classes.Remove(@class);
             _unitOfWork.Save();
 
             return Json(new { success = true, message = "Class deleted successfully." });
+        }
+
+        //public IActionResult AddMember()
+        //{
+        //    return View();
+        //}
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult RemoveMember(int classId, string memberId)
+        {
+            var @class = _unitOfWork.Classes.Get(c => c.Id == classId);
+
+            if (@class == null) return Json(new { success = false, message = "Class not found." });
+
+            var classMember = _unitOfWork.ClassMembers.Get(cm => cm.ClassId == classId && cm.UserId == memberId, includeProperties: "User");
+
+            if(classMember == null) return Json(new { success = false, message = "Member not found." });
+
+            _unitOfWork.ClassMembers.Remove(classMember);
+            _unitOfWork.Save();
+
+            return Json(new { success = true, message = "Member removed successfully." });
         }
 
         #endregion

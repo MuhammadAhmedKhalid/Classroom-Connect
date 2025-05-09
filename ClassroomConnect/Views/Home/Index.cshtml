@@ -12,9 +12,16 @@
     <section class="hero-section position-relative">
         @if (isSignedIn)
         {
-            <div class="w-100 text-center">
-                <h2>Hello, @UserManager.GetUserAsync(User).Result?.Name</h2>
-                <p class="lead">You are signed in and ready to explore your classrooms and activities.</p>
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-4">
+                        <h2>Hello, @UserManager.GetUserAsync(User).Result?.Name</h2>
+                        <p class="lead">You are signed in and ready to explore your classrooms and activities.</p>
+                    </div>
+                    <div class="col-lg-8 text-center">
+                        <img src="~/Content/images/classroom.png" class="img-fluid rounded" style="max-height: 400px; width: auto;" alt="Classroom">
+                    </div>
+                </div>
             </div>
         }
         else

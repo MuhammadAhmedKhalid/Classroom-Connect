@@ -1,4 +1,4 @@
-﻿﻿@using Microsoft.AspNetCore.Identity
+﻿@using Microsoft.AspNetCore.Identity
 @using Classroom.Models
 
 @inject UserManager<ApplicationUser> UserManager
@@ -13,30 +13,38 @@
 <div class="class-section p-4 border rounded">
     <div class="d-flex justify-content-between align-items-center">
         <h2 class="section-header">Assignments</h2>
-        @if (isCreator)
-        {
-            <a asp-controller="Assignment" asp-action="Create" asp-route-classId="@Model.Class?.Id" class="btn btn-sm btn-success">
-                <i class="bi bi-plus"></i> New Assignment
-            </a>
-        }
+        <div class="d-flex align-items-center">
+            <div class="me-3">
+                <div class="mb-1">
+                    <label for="assignmentSearchInput" class="form-label visually-hidden">Search Assignments</label>
+                </div>
+                <input type="text" class="form-control form-control-sm" id="assignmentSearchInput" name="searchTerm" placeholder="Search assignments...">
+            </div>
+            @if (isCreator)
+            {
+                <a asp-controller="Assignment" asp-action="Create" asp-route-classId="@Model.Class?.Id" class="btn btn-sm btn-success">
+                    <i class="bi bi-plus"></i> New Assignment
+                </a>
+            }
+        </div>
     </div>
     <hr />
 
     @if (Model.Assignments?.Any() == true)
     {
-        <div class="list-group">
+        <div class="list-group" id="assignmentsList">
             @foreach (var assignment in Model.Assignments)
             {
                 <a asp-controller="Assignment" asp-action="Details" asp-route-id="@assignment.Id"
-                   class="list-group-item list-group-item-action">
+                   class="list-group-item list-group-item-action assignment-item">
                     <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1">@assignment.Title</h5>
+                        <h5 class="mb-1 assignment-title">@assignment.Title</h5>
                         <small>
                             Due Date: @assignment.DueDate.ToString() <br />
                             Close Date: @assignment.CloseDate.ToString()
                         </small>
                     </div>
-                    <p class="mb-1">@assignment.Instructions</p>
+                    <p class="mb-1 assignment-instructions">@assignment.Instructions</p>
                     <small>Posted: @assignment.PostedAt.ToString()</small>
                 </a>
             }
@@ -49,3 +57,20 @@
         </div>
     }
 </div>
+
+<script>
+    const assignmentSearchInput = document.getElementById('assignmentSearchInput');
+    const assignmentsList = document.getElementById('assignmentsList');
+    const assignmentItems = document.querySelectorAll('.assignment-item');
+
+    assignmentSearchInput.addEventListener('input', function () {
+        const searchTerm = this.value.toLowerCase();
+
+        assignmentItems.forEach(item => {
+            const title = item.querySelector('.assignment-title').textContent.toLowerCase();
+            const instructions = item.querySelector('.assignment-instructions').textContent.toLowerCase();
+            const shouldShow = title.includes(searchTerm) || instructions.includes(searchTerm);
+            item.style.display = shouldShow ? '' : 'none';
+        });
+    });
+</script>

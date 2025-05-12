@@ -1,17 +1,35 @@
 ﻿@model IEnumerable<Classroom.Models.Class>
 
 <div class="container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <!-- Desktop Header (unchanged) -->
+    <div class="d-none d-md-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">@ViewData["Title"]</h1>
         <div class="d-flex align-items-center gap-3">
             @if (Model.Any())
             {
                 <div class="search-container">
                     <input type="text" class="form-control" id="classSearchInput" placeholder="Search classes..." aria-label="Search classes">
-                </div>                
+                </div>
             }
             <a asp-action="Create" class="btn btn-primary">
                 <i class="bi bi-plus-circle"></i> Create New
+            </a>
+        </div>
+    </div>
+
+    <!-- Mobile Header (new improved version) -->
+    <div class="d-flex d-md-none flex-column mb-4 gap-2">
+        <h1 class="mb-0">@ViewData["Title"]</h1>
+        <div class="d-flex flex-column flex-sm-row gap-2 w-100">
+            @if (Model.Any())
+            {
+                <div class="search-container flex-grow-1">
+                    <input type="text" class="form-control" id="classSearchInputMobile" placeholder="Search classes..." aria-label="Search classes">
+                </div>
+            }
+            <a asp-action="Create" class="btn btn-primary flex-shrink-0">
+                <i class="bi bi-plus-circle"></i> <span class="d-none d-sm-inline">Create New</span>
+                <span class="d-inline d-sm-none">New</span>
             </a>
         </div>
     </div>
@@ -30,7 +48,8 @@
                             </p>
                         </div>
                         <div class="card-footer bg-transparent border-top-0">
-                            <div class="d-flex justify-content-end gap-2">
+                            <!-- Desktop Buttons (unchanged) -->
+                            <div class="d-none d-md-flex justify-content-end gap-2">
                                 <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
                                     <i class="bi bi-eye"></i> View
                                 </a>
@@ -43,6 +62,22 @@
                                     <i class="bi bi-trash"></i> Delete
                                 </button>
                             </div>
+
+                            <!-- Mobile Buttons (improved) -->
+                            <div class="d-flex d-md-none justify-content-end gap-2 flex-wrap">
+                                <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i> <span class="d-none d-sm-inline">View</span>
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-pencil-square"></i> <span class="d-none d-sm-inline">Edit</span>
+                                </a>
+                                <button class="btn btn-sm btn-outline-danger delete-button"
+                                        data-url="@Url.Action("Delete", "Class", new { id = @item.Id })"
+                                        data-item-name="class">
+                                    <i class="bi bi-trash"></i> <span class="d-none d-sm-inline">Delete</span>
+                                </button>
+                            </div>
+
                             <small class="text-muted">
                                 Class Code:
                                 <strong>
@@ -75,6 +110,7 @@
 
 @section Scripts {
     <script>
+        // Copy class code functionality
         document.querySelectorAll('.class-code').forEach(element => {
             element.addEventListener('click', function() {
                 const code = this.getAttribute('data-code');
@@ -90,59 +126,71 @@
             });
         });
 
-        const classSearchInput = document.getElementById('classSearchInput');
-        const classesContainer = document.getElementById('classesContainer');
-        const classCards = document.querySelectorAll('.class-card');
+        // Search functionality for both inputs
+        function setupSearch(inputId) {
+            const searchInput = document.getElementById(inputId);
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    const searchTerm = this.value.toLowerCase();
+                    const classCards = document.querySelectorAll('.class-card');
+                    let hasMatches = false;
 
-        classSearchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            let hasMatches = false;
+                    classCards.forEach(card => {
+                        const name = card.querySelector('.class-name').textContent.toLowerCase();
+                        const description = card.querySelector('.class-description').textContent.toLowerCase();
+                        const shouldShow = name.includes(searchTerm) || description.includes(searchTerm);
+                        card.style.display = shouldShow ? 'block' : 'none';
 
-            classCards.forEach(card => {
-                const name = card.querySelector('.class-name').textContent.toLowerCase();
-                const description = card.querySelector('.class-description').textContent.toLowerCase();
-                const shouldShow = name.includes(searchTerm) || description.includes(searchTerm);
-                card.style.display = shouldShow ? 'block' : 'none';
+                        if (shouldShow) {
+                            hasMatches = true;
+                        }
+                    });
 
-                if (shouldShow) {
-                    hasMatches = true;
-                }
-            });
-
-            const noMatchesMessage = document.getElementById('noMatchesMessage');
-            if (!hasMatches && classCards.length > 0) {
-                if (!noMatchesMessage) {
-                    const message = document.createElement('div');
-                    message.id = 'noMatchesMessage';
-                    message.className = 'alert alert-info col-12';
-                    message.textContent = 'No classes match your search.';
-                    classesContainer.appendChild(message);
-                }
-            } else if (noMatchesMessage) {
-                noMatchesMessage.remove();
+                    const noMatchesMessage = document.getElementById('noMatchesMessage');
+                    if (!hasMatches && classCards.length > 0) {
+                        if (!noMatchesMessage) {
+                            const message = document.createElement('div');
+                            message.id = 'noMatchesMessage';
+                            message.className = 'alert alert-info col-12';
+                            message.textContent = 'No classes match your search.';
+                            document.getElementById('classesContainer').appendChild(message);
+                        }
+                    } else if (noMatchesMessage) {
+                        noMatchesMessage.remove();
+                    }
+                });
             }
-        });
+        }
+
+        // Initialize both search inputs
+        setupSearch('classSearchInput');
+        setupSearch('classSearchInputMobile');
     </script>
 }
 
 <style>
+    /* Desktop styles (unchanged) */
     .search-container {
         width: 250px;
     }
 
-    @@media (max-width: 768px) {
-        .d-flex {
-            flex-direction: column;
-            align-items: flex-start !important;
-        }
-
+    /* Mobile-specific improvements */
+    @@media (max-width: 767.98px) {
         .search-container {
             width: 100%;
-            margin-bottom: 1rem;
         }
 
-        h1 {
-            margin-bottom: 1rem !important;
+        .card-footer .btn {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+        }
+
+        .card-text {
+            font-size: 0.9rem;
         }
     }
 </style>

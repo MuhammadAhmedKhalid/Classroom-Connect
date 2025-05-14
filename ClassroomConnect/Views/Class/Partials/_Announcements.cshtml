@@ -1,0 +1,155 @@
+﻿﻿@using Microsoft.AspNetCore.Identity
+@using Classroom.Models
+
+@inject UserManager<ApplicationUser> UserManager
+
+@model Classroom.Models.ViewModels.ClassDetailsVM
+
+@{
+    var currentUser = await UserManager.GetUserAsync(User);
+    var isCreator = Model.Class?.CreatedById == currentUser?.Id;
+    var initial = currentUser?.Name[0];
+}
+
+<div class="class-section p-4 border rounded">
+    <h2 class="section-header">Announcements</h2>
+    <hr />
+    @if (isCreator)
+    {
+        <div id="announcement-box" class="rounded p-3 d-flex align-items-center shadow-sm" style="cursor: pointer; border: 1px solid #ccc;" onclick="showEditor()">
+            <div id="user-initial-circle" class="rounded-circle text-white d-flex align-items-center justify-content-center"
+                 style="width: 40px; height: 40px;">
+                <strong>@initial</strong>
+            </div>
+            <span class="ms-3 text-muted">Announce something to your class</span>
+        </div>
+
+        <div id="announcement-editor" class="mt-3 d-none card shadow-sm p-3">
+            <div id="announcement-content"
+                 contenteditable="true"
+                 class="form-control mb-2 px-3 py-2"
+                 style="min-height: 120px; border-radius: 0.5rem; background-color: #fdfdfd; font-size: 1rem;"
+                 placeholder="Announce something to your class"></div>
+
+
+            <div class="d-flex flex-wrap gap-2 mb-2 border rounded p-2 bg-light-subtle" style="border-color: #ddd;">
+                <button type="button" class="btn btn-icon format-btn" data-command="bold" title="Bold">
+                    <i class="bi bi-type-bold"></i>
+                </button>
+                <button type="button" class="btn btn-icon format-btn" data-command="italic" title="Italic">
+                    <i class="bi bi-type-italic"></i>
+                </button>
+                <button type="button" class="btn btn-icon format-btn" data-command="underline" title="Underline">
+                    <i class="bi bi-type-underline"></i>
+                </button>
+                <button type="button" class="btn btn-icon format-btn" data-command="insertUnorderedList" title="Bullet List">
+                    <i class="bi bi-list-ul"></i>
+                </button>
+            </div>
+
+            <div class="d-flex justify-content-end align-items-center mt-2 gap-2">
+                <button class="btn btn-sm btn-primary px-4" onclick="postAnnouncement()">Post</button>
+                <button class="btn btn-sm btn-outline-secondary" onclick="hideEditor()">Cancel</button>
+            </div>
+        </div>
+
+    }
+</div>
+
+<script>
+    function getRandomColor() {
+        const colors = ['#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3', '#03a9f4', '#00bcd4', '#009688',
+            '#4caf50', '#8bc34a', '#cddc39', '#ffc107', '#ff9800', '#ff5722'];
+        return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    function applyRandomColorToCircle() {
+        const ids = ['user-initial-circle', 'user-initial-editor-circle'];
+        ids.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.style.backgroundColor = getRandomColor();
+            }
+        });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        applyRandomColorToCircle();
+
+        const buttons = document.querySelectorAll('.format-btn');
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const command = btn.getAttribute('data-command');
+                document.execCommand(command, false, null);
+                updateButtonStates();
+            });
+        });
+
+        document.getElementById('announcement-content').addEventListener('keyup', updateButtonStates);
+        document.getElementById('announcement-content').addEventListener('mouseup', updateButtonStates);
+    });
+
+    function updateButtonStates() {
+        const buttons = document.querySelectorAll('.format-btn');
+        buttons.forEach(btn => {
+            const command = btn.getAttribute('data-command');
+            const isActive = document.queryCommandState(command);
+            btn.classList.toggle('active', isActive);
+        });
+    }
+
+    function showEditor() {
+        document.getElementById('announcement-box').classList.add('d-none');
+        document.getElementById('announcement-editor').classList.remove('d-none');
+    }
+
+    function hideEditor() {
+        document.getElementById('announcement-editor').classList.add('d-none');
+        document.getElementById('announcement-box').classList.remove('d-none');
+    }
+
+    function postAnnouncement() {
+        const content = document.getElementById('announcement-content').innerHTML;
+        if (content.trim()) {
+            console.log("Posting announcement:", content);
+            alert("Announcement posted!");
+            document.getElementById('announcement-content').innerHTML = '';
+            hideEditor();
+        } else {
+            alert("Please write something before posting.");
+        }
+    }
+</script>
+
+<style>
+    .btn-icon {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 0.4rem;
+        transition: all 0.2s ease;
+    }
+
+        .btn-icon:hover {
+            background-color: #f1f1f1;
+        }
+
+        .btn-icon.active {
+            background-color: #0d6efd;
+            color: #fff;
+            border-color: #0d6efd;
+        }
+
+    #announcement-content:empty:before {
+        content: attr(placeholder);
+        color: #aaa;
+        pointer-events: none;
+        position: absolute;
+    }
+</style>

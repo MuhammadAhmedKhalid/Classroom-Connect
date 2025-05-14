@@ -7,6 +7,9 @@
         <a class="nav-link active" data-bs-toggle="tab" href="#info">Info</a>
     </li>
     <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#announcement">Announcements</a>
+    </li>
+    <li class="nav-item">
         <a class="nav-link" data-bs-toggle="tab" href="#members">Members</a>
     </li>
     <li class="nav-item">
@@ -20,6 +23,9 @@
 <div class="tab-content">
     <div id="info" class="tab-pane fade show active">
         @Html.Partial("Partials/_Info", Model)
+    </div>
+    <div id="info" class="tab-pane fade show active">
+        @Html.Partial("Partials/_Announcement", Model)
     </div>
     <div id="members" class="tab-pane fade">
         @Html.Partial("Partials/_Members", Model)

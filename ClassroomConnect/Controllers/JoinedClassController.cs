@@ -76,6 +76,5 @@ namespace ClassroomConnect.Controllers
             }
             return View(joinClassVM);
         }
-
     }
 }

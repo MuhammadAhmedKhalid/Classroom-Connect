@@ -10,6 +10,7 @@
         IQuizQuestionRepository QuizQuestions { get; }
         IQuizSubmissionRepository QuizSubmissions { get; }
         IQuizAnswerRepository QuizAnswers { get; }
+        IAnnouncementRepository Announcements { get; }
 
         void Save();
     }

@@ -48,13 +48,18 @@
             </div>
 
             <div class="d-flex justify-content-end align-items-center mt-2 gap-2">
-                <button class="btn btn-sm btn-primary px-4" onclick="postAnnouncement()">Post</button>
-                <button class="btn btn-sm btn-outline-secondary" onclick="hideEditor()">Cancel</button>
+                <button type="button" class="btn btn-sm btn-primary px-4" onclick="postAnnouncement()">Post</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="hideEditor()">Cancel</button>
             </div>
         </div>
 
+        <div id="announcement-message" class="mt-3 d-none alert" role="alert"></div>
     }
 </div>
+
+<form id="announcementForm">
+    @Html.AntiForgeryToken()
+</form>
 
 <script>
     function getRandomColor() {
@@ -110,13 +115,50 @@
 
     function postAnnouncement() {
         const content = document.getElementById('announcement-content').innerHTML;
+        const classId = @Model.Class?.Id ?? 0;
+
         if (content.trim()) {
-            console.log("Posting announcement:", content);
-            alert("Announcement posted!");
-            document.getElementById('announcement-content').innerHTML = '';
-            hideEditor();
+            const token = document.querySelector('#announcementForm input[name="__RequestVerificationToken"]').value;
+
+            const formData = new FormData();
+            formData.append('__RequestVerificationToken', token);
+            formData.append('ContentHtml', content);
+            formData.append('ClassId', classId);
+
+            fetch('/Class/PostAnnouncement', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const msgBox = document.getElementById('announcement-message');
+
+                if (data.success) {
+                    msgBox.textContent = data.message;
+                    msgBox.className = 'alert alert-success mt-3';
+                    msgBox.classList.remove('d-none');
+
+                    document.getElementById('announcement-content').innerHTML = '';
+                    hideEditor();
+                } else {
+                    msgBox.textContent = data.message || "Failed to post announcement.";
+                    msgBox.className = 'alert alert-danger mt-3';
+                    msgBox.classList.remove('d-none');
+                }
+
+                setTimeout(() => {
+                    msgBox.classList.add('d-none');
+                }, 3000);
+            });
         } else {
-            alert("Please write something before posting.");
+            const msgBox = document.getElementById('announcement-message');
+            msgBox.textContent = "Please write something before posting.";
+            msgBox.className = 'alert alert-warning mt-3';
+            msgBox.classList.remove('d-none');
+
+            setTimeout(() => {
+                msgBox.classList.add('d-none');
+            }, 3000);
         }
     }
 </script>

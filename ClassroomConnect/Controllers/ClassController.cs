@@ -184,6 +184,23 @@ namespace ClassroomConnect.Controllers
             return Json(new { success = true, message = "Member removed successfully." });
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public JsonResult PostAnnouncement([Bind("ContentHtml,ClassId")] Announcement announcement)
+        {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var @class = _unitOfWork.Classes.Get(c => c.Id == announcement.ClassId);
+
+            if (@class == null) return Json(new { success = false, message = "Class not found." });
+
+            announcement.PostedAt = DateTime.Now;
+
+            _unitOfWork.Announcements.Add(announcement);
+            _unitOfWork.Save();
+
+            return Json(new { success = true, message = "Announcement posted successfully." });
+        }
+
         #endregion
 
         #region Helper methods

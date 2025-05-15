@@ -15,6 +15,7 @@ namespace Classroom.DataAccess.Repository
         public IQuizQuestionRepository QuizQuestions { get; private set; }
         public IQuizSubmissionRepository QuizSubmissions { get; private set; }
         public IQuizAnswerRepository QuizAnswers { get; private set; }
+        public IAnnouncementRepository Announcements { get; private set; }
 
         public UnitOfWork(ApplicationDbContext db)
         {
@@ -27,6 +28,7 @@ namespace Classroom.DataAccess.Repository
             QuizQuestions = new QuizQuestionRepository(_db);
             QuizSubmissions = new QuizSubmissionRepository(_db);
             QuizAnswers = new QuizAnswerRepository(_db);
+            Announcements = new AnnouncementRepository(_db);
         }
 
         public void Save()

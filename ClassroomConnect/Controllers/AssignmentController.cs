@@ -10,7 +10,6 @@ namespace ClassroomConnect.Controllers
     [Authorize]
     public class AssignmentController(IUnitOfWork unitOfWork) : Controller
     {
-
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public IActionResult Create(int classId)

@@ -10,7 +10,6 @@ namespace ClassroomConnect.Controllers
     [Authorize]
     public class QuizController(IUnitOfWork unitOfWork) : Controller
     {
-
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public IActionResult Details(int? id)

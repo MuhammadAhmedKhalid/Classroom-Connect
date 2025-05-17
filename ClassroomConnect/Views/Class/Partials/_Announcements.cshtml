@@ -55,6 +55,8 @@
 
         <div id="announcement-message" class="mt-3 d-none alert" role="alert"></div>
     }
+    <div id="announcements-list" class="mt-4">
+    </div>
 </div>
 
 <form id="announcementForm">
@@ -80,6 +82,7 @@
 
     window.addEventListener('DOMContentLoaded', () => {
         applyRandomColorToCircle();
+        loadAnnouncements();
 
         const buttons = document.querySelectorAll('.format-btn');
         buttons.forEach(btn => {
@@ -115,7 +118,7 @@
 
     function postAnnouncement() {
         const content = document.getElementById('announcement-content').innerHTML;
-        const classId = @Model.Class?.Id ?? 0;
+        const classId = @Model.Class?.Id;
 
         if (content.trim()) {
             const token = document.querySelector('#announcementForm input[name="__RequestVerificationToken"]').value;
@@ -140,6 +143,7 @@
 
                     document.getElementById('announcement-content').innerHTML = '';
                     hideEditor();
+                    loadAnnouncements();
                 } else {
                     msgBox.textContent = data.message || "Failed to post announcement.";
                     msgBox.className = 'alert alert-danger mt-3';
@@ -160,6 +164,33 @@
                 msgBox.classList.add('d-none');
             }, 3000);
         }
+    }
+
+    function loadAnnouncements() {
+        const classId = @Model.Class?.Id;
+
+        fetch(`/Class/GetAnnouncements?classId=${classId}`)
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById('announcements-list');
+                container.innerHTML = '';
+
+                if (data.length === 0) {
+                    return;
+                }
+
+                data.forEach(a => {
+                    const div = document.createElement('div');
+                    div.className = 'card mb-2 shadow-sm';
+                    div.innerHTML = `
+                        <div class="card-body">
+                            <div class="announcement-content mb-2">${a.contentHtml}</div>
+                            <div class="text-muted small text-end">${a.postedAt}</div>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                });
+            });
     }
 </script>
 

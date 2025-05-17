@@ -137,6 +137,8 @@ namespace ClassroomConnect.Controllers
             return Json(new { success = true, message = "Class deleted successfully." });
         }
 
+        #region Class Member
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public JsonResult AddMember(int classId, string identifier)
@@ -184,6 +186,10 @@ namespace ClassroomConnect.Controllers
             return Json(new { success = true, message = "Member removed successfully." });
         }
 
+        #endregion
+
+        #region Announcement
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public JsonResult PostAnnouncement([Bind("ContentHtml,ClassId")] Announcement announcement)
@@ -200,6 +206,28 @@ namespace ClassroomConnect.Controllers
 
             return Json(new { success = true, message = "Announcement posted successfully." });
         }
+
+        [HttpGet]
+        public JsonResult GetAnnouncements(int classId)
+        {
+            var @class = _unitOfWork.Classes.Get(c => c.Id == classId);
+
+            if (@class == null) return Json(new { success = false, message = "Class not found." });
+
+            var announcements = _unitOfWork.Announcements
+                .GetAll(a => a.ClassId == classId)
+                .OrderByDescending(a => a.PostedAt)
+                .Select(a => new
+                {
+                    a.ContentHtml,
+                    PostedAt = a.PostedAt.ToString() 
+                })
+                .ToList();
+
+            return Json(announcements);
+        }
+
+        #endregion
 
         #endregion
 

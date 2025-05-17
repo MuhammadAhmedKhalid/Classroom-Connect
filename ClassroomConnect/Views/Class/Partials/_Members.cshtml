@@ -35,7 +35,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="addMemberForm" asp-action="AddMember" asp-controller="Class" asp-route-classId="@Model.Class.Id" method="post">
+                        <form id="addMemberForm" asp-action="Add" asp-controller="ClassMember" asp-route-classId="@Model.Class.Id" method="post">
                             @Html.AntiForgeryToken()
                             <div class="mb-3">
                                 <label for="MemberIdentifier" class="form-label">Email</label>
@@ -86,7 +86,7 @@
                                     <input type="hidden" name="memberId" value="@member.User?.Id" />
                                     <button type="button"
                                             class="btn btn-sm btn-outline-danger delete-button"
-                                            data-url="@Url.Action("RemoveMember", "Class", new { classId = Model.Class.Id, memberId = member.User?.Id })"
+                                            data-url="@Url.Action("Remove", "ClassMember", new { classId = Model.Class.Id, memberId = member.User?.Id })"
                                             data-title='Are you sure you want to remove @member.User?.Name?'>
                                         <i class="bi bi-person-x"></i> Remove
                                     </button>

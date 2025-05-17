@@ -128,7 +128,7 @@
             formData.append('ContentHtml', content);
             formData.append('ClassId', classId);
 
-            fetch('/Class/PostAnnouncement', {
+            fetch('/Announcement/Post', {
                 method: 'POST',
                 body: formData
             })
@@ -169,7 +169,7 @@
     function loadAnnouncements() {
         const classId = @Model.Class?.Id;
 
-        fetch(`/Class/GetAnnouncements?classId=${classId}`)
+        fetch(`/Announcement/GetAll?classId=${classId}`)
             .then(res => res.json())
             .then(data => {
                 const container = document.getElementById('announcements-list');

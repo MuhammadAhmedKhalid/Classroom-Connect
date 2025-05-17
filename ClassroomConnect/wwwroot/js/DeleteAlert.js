@@ -50,12 +50,10 @@
     });
 }
 
-$(document).ready(function () {
-    $('.delete-button').click(function () {
-        const deleteUrl = $(this).data('url');
-        const itemName = $(this).data('item-name') || 'item';
-        const customTitle = $(this).data('title') || null;
+$(document).on('click', '.delete-button', function () {
+    const deleteUrl = $(this).data('url');
+    const itemName = $(this).data('item-name') || 'item';
+    const customTitle = $(this).data('title') || null;
 
-        showDeleteConfirmation(deleteUrl, itemName, customTitle);
-    });
+    showDeleteConfirmation(deleteUrl, itemName, customTitle);
 });

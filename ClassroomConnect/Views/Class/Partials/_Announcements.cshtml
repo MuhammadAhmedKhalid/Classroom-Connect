@@ -180,10 +180,31 @@
                 }
 
                 data.forEach(a => {
+                    const isCreator = @(Model.Class?.CreatedById == currentUser?.Id ? "true" : "false");
+
                     const div = document.createElement('div');
-                    div.className = 'card mb-2 shadow-sm';
+                    div.className = 'card mb-3 shadow-sm position-relative';
+
                     div.innerHTML = `
-                        <div class="card-body">
+                        <div class="card-body position-relative">
+                            ${isCreator ? `
+                                <div class="dropdown position-absolute top-0 end-0 m-2">
+                                    <button class="btn btn-sm text-muted" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a class="dropdown-item">Edit</a></li>
+                                        <li>
+                                             <button type="button"
+                                                    class="dropdown-item delete-button"
+                                                    data-url="/Announcement/Delete/${a.id}"
+                                                    data-item-name="announcement?">
+                                                Delete
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>` : ''
+                            }
                             <div class="announcement-content mb-2">${a.contentHtml}</div>
                             <div class="text-muted small text-end">${a.postedAt}</div>
                         </div>
@@ -224,5 +245,9 @@
         color: #aaa;
         pointer-events: none;
         position: absolute;
+    }
+
+    .card .dropdown-toggle::after {
+        display: none;
     }
 </style>

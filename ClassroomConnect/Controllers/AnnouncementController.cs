@@ -38,12 +38,25 @@ namespace ClassroomConnect.Controllers
                 .OrderByDescending(a => a.PostedAt)
                 .Select(a => new
                 {
+                    a.Id,
                     a.ContentHtml,
                     PostedAt = a.PostedAt.ToString()
                 })
                 .ToList();
 
             return Json(announcements);
+        }
+
+        public JsonResult Delete(int id)
+        {
+            var announcement = _unitOfWork.Announcements.Get(a => a.Id == id);
+
+            if (announcement == null) return Json(new { success = false, message = "Announcement not found." });
+
+            _unitOfWork.Announcements.Remove(announcement);
+            _unitOfWork.Save();
+
+            return Json(new { success = true, message = "Announcement removed successfully." });
         }
     }
 }

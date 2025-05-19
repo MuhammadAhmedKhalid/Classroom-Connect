@@ -13,8 +13,9 @@ namespace Classroom.DataAccess.Repository
             _db = db;
         }
 
-        //public void Update()
-        //{
-        //}
+        public void Update(Announcement announcementFromDb, Announcement announcement)
+        {
+            announcementFromDb.ContentHtml = announcement.ContentHtml;
+        }
     }
 }

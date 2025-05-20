@@ -115,10 +115,8 @@ namespace ClassroomConnect.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, [Bind("Id,Title,Instructions,DueDate,CloseDate,ClassId,Questions")] Quiz quiz)
+        public IActionResult Edit([Bind("Id,Title,Instructions,DueDate,CloseDate,ClassId,Questions")] Quiz quiz)
         {
-            if (id != quiz.Id) return NotFound();
-
             if (quiz.CloseDate != null && quiz.DueDate != null && quiz.CloseDate < quiz.DueDate)
             {
                 ModelState.AddModelError("CloseDate", "Close Date must be equal to or later than Due Date.");
@@ -137,7 +135,7 @@ namespace ClassroomConnect.Controllers
 
                 try
                 {
-                    var quizFromDb = _unitOfWork.Quizzes.Get(q => q.Id == id);
+                    var quizFromDb = _unitOfWork.Quizzes.Get(q => q.Id == quiz.Id);
 
                     if (quizFromDb == null) return NotFound();
 
@@ -150,7 +148,7 @@ namespace ClassroomConnect.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!_unitOfWork.Quizzes.Any(q => q.Id == id)) return NotFound();
+                    if (!_unitOfWork.Quizzes.Any(q => q.Id == quiz.Id)) return NotFound();
                     else throw;
                 }
             }

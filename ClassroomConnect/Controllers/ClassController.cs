@@ -96,14 +96,13 @@ namespace ClassroomConnect.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, [Bind("Id,Name,Description")] Class @class)
+        public IActionResult Edit([Bind("Id,Name,Description")] Class @class)
         {
-            if (id != @class.Id) return NotFound();
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var classFromDb = _unitOfWork.Classes.Get(c => c.Id == id);
+                    var classFromDb = _unitOfWork.Classes.Get(c => c.Id == @class.Id);
                     if (classFromDb == null) return NotFound();
 
                     _unitOfWork.Classes.Update(classFromDb, @class);

@@ -105,10 +105,8 @@ namespace ClassroomConnect.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, Assignment assignment)
+        public IActionResult Edit(Assignment assignment)
         {
-            if (id != assignment.Id) return NotFound();
-
             if (assignment.CloseDate != null && assignment.DueDate != null && assignment.CloseDate < assignment.DueDate)
             {
                 ModelState.AddModelError("CloseDate", "Close Date must be equal to or later than Due Date.");
@@ -118,7 +116,7 @@ namespace ClassroomConnect.Controllers
             {
                 try
                 {
-                    var assignmentFromDb = _unitOfWork.Assignments.Get(a => a.Id == id);
+                    Assignment assignmentFromDb = _unitOfWork.Assignments.Get(a => a.Id == assignment.Id);
 
                     if (assignmentFromDb == null) return NotFound();
 
@@ -131,7 +129,7 @@ namespace ClassroomConnect.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!_unitOfWork.Assignments.Any(a => a.Id == id)) return NotFound();
+                    if (!_unitOfWork.Assignments.Any(a => a.Id == assignment.Id)) return NotFound();
                     else throw;
                 }
             }

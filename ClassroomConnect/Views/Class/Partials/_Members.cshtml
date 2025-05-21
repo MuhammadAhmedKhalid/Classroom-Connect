@@ -10,41 +10,41 @@
     var isClassCreator = Model.Class?.CreatedById == currentUser?.Id;
 }
 
-<div class="class-section p-4 border rounded">
-    <div class="d-flex justify-content-between align-items-center">
+<div class="class-section p-3 p-md-4 border rounded">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start 
+        align-items-md-center gap-2 mb-3">
+        
         <h2 class="section-header">Class Members</h2>
-        <div class="d-flex align-items-center">
-            <div class="me-3">
-                <div class="mb-1">
-                    <label for="searchInput" class="form-label visually-hidden">Search Members</label>
-                </div>
-                <input type="text" class="form-control form-control-sm" id="searchInput" name="searchTerm" placeholder="Search members...">
-            </div>
+
+        <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center search-parent gap-2">
+            <input type="text" class="form-control form-control-sm w-100 w-md-auto" id="searchInput" name="searchTerm" placeholder="Search members...">
+
             @if (isClassCreator)
             {
-                <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#addMemberModal">
+                <button type="button" class="btn btn-sm btn-success w-100 w-md-auto" data-bs-toggle="modal" data-bs-target="#addMemberModal">
                     + Add Member
                 </button>
             }
         </div>
-        <div class="modal fade" id="addMemberModal" tabindex="-1" aria-labelledby="addMemberModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="addMemberModalLabel">Add New Member</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="addMemberForm" asp-action="Add" asp-controller="ClassMember" asp-route-classId="@Model.Class.Id" method="post">
-                            @Html.AntiForgeryToken()
-                            <div class="mb-3">
-                                <label for="MemberIdentifier" class="form-label">Email</label>
-                                <input type="text" class="form-control" id="MemberIdentifier" name="identifier" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Add Member</button>
-                        </form>
-                        <div id="addMemberResult" class="mt-3"></div>
-                    </div>
+    </div>
+
+    <div class="modal fade" id="addMemberModal" tabindex="-1" aria-labelledby="addMemberModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm modal-md modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addMemberModalLabel">Add New Member</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addMemberForm" asp-action="Add" asp-controller="ClassMember" asp-route-classId="@Model.Class.Id" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label for="MemberIdentifier" class="form-label">Email</label>
+                            <input type="text" class="form-control" id="MemberIdentifier" name="identifier" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Add Member</button>
+                    </form>
+                    <div id="addMemberResult" class="mt-3"></div>
                 </div>
             </div>
         </div>
@@ -54,49 +54,51 @@
 
     @if (Model.ClassMembers?.Any() == true)
     {
-        <table class="table table-striped table-hover">
-            <thead>
-                <tr>
-                    <th class="searchable">Name</th>
-                    <th class="searchable">Email</th>
-                    <th>Joined Date</th>
-                    @if (isClassCreator)
-                    {
-                        <th>Actions</th>
-                    }
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var member in Model.ClassMembers)
-                {
-                    var isMe = member.User?.Id == currentUser?.Id;
-
+        <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle text-nowrap">
+                <thead class="table-light">
                     <tr>
-                        <td>
-                            @member.User?.Name
-                            @(isMe ? " (Me)" : "")
-                        </td>
-                        <td>@member.User?.Email</td>
-                        <td>@member.JoinedAt.ToString("MMMM dd, yyyy hh:mm tt")</td>
-                        <td>
-                            @if (isClassCreator)
-                            {
-                                <form asp-action="RemoveMember" asp-controller="Class" method="post" class="d-inline">
-                                    <input type="hidden" name="classId" value="@Model.Class.Id" />
-                                    <input type="hidden" name="memberId" value="@member.User?.Id" />
-                                    <button type="button"
-                                            class="btn btn-sm btn-outline-danger delete-button"
-                                            data-url="@Url.Action("Remove", "ClassMember", new { classId = Model.Class.Id, memberId = member.User?.Id })"
-                                            data-title='Are you sure you want to remove @member.User?.Name?'>
-                                        <i class="bi bi-person-x"></i> Remove
-                                    </button>
-                                </form>
-                            }
-                        </td>
+                        <th class="searchable">Name</th>
+                        <th class="searchable">Email</th>
+                        <th>Joined Date</th>
+                        @if (isClassCreator)
+                        {
+                            <th>Actions</th>
+                        }
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (var member in Model.ClassMembers)
+                    {
+                        var isMe = member.User?.Id == currentUser?.Id;
+
+                        <tr>
+                            <td>
+                                @member.User?.Name
+                                @(isMe ? " (Me)" : "")
+                            </td>
+                            <td>@member.User?.Email</td>
+                            <td>@member.JoinedAt.ToString("MMMM dd, yyyy hh:mm tt")</td>
+                            <td>
+                                @if (isClassCreator)
+                                {
+                                    <form asp-action="RemoveMember" asp-controller="Class" method="post" class="d-inline">
+                                        <input type="hidden" name="classId" value="@Model.Class.Id" />
+                                        <input type="hidden" name="memberId" value="@member.User?.Id" />
+                                        <button type="button"
+                                                class="btn btn-sm btn-outline-danger delete-button"
+                                                data-url="@Url.Action("Remove", "ClassMember", new { classId = Model.Class.Id, memberId = member.User?.Id })"
+                                                data-title='Are you sure you want to remove @member.User?.Name?'>
+                                            <i class="bi bi-person-x"></i> Remove
+                                        </button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     }
     else
     {
@@ -105,6 +107,7 @@
         </div>
     }
 </div>
+
 
 <script>
     const addMemberForm = document.getElementById("addMemberForm");
@@ -164,3 +167,20 @@
         });
     });
 </script>
+
+<style>
+    @@media (max-width: 576px) {
+        .section-header
+        {
+            font-size: 1.25rem;
+        }
+
+        .modal-content {
+            padding: 1rem;
+        }
+
+        .search-parent {
+            width: 100%;
+        }
+    }
+</style>

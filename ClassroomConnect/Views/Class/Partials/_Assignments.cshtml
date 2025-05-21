@@ -10,24 +10,22 @@
     var isCreator = Model.Class?.CreatedById == currentUser?.Id;
 }
 
-<div class="class-section p-4 border rounded">
-    <div class="d-flex justify-content-between align-items-center">
+<div class="class-section p-3 p-md-4 border rounded">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2 mb-3">
         <h2 class="section-header">Assignments</h2>
-        <div class="d-flex align-items-center">
-            <div class="me-3">
-                <div class="mb-1">
-                    <label for="assignmentSearchInput" class="form-label visually-hidden">Search Assignments</label>
-                </div>
-                <input type="text" class="form-control form-control-sm" id="assignmentSearchInput" name="searchTerm" placeholder="Search assignments...">
-            </div>
+
+        <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-2 search-parent">
+            <input type="text" class="form-control form-control-sm w-100 w-md-auto" id="assignmentSearchInput" name="searchTerm" placeholder="Search assignments...">
+
             @if (isCreator)
             {
-                <a asp-controller="Assignment" asp-action="Create" asp-route-classId="@Model.Class?.Id" class="btn btn-sm btn-success">
+                <a asp-controller="Assignment" asp-action="Create" asp-route-classId="@Model.Class?.Id" class="btn btn-sm btn-success w-100 w-md-auto">
                     <i class="bi bi-plus"></i> New Assignment
                 </a>
             }
         </div>
     </div>
+
     <hr />
 
     @if (Model.Assignments?.Any() == true)
@@ -37,15 +35,21 @@
             {
                 <a asp-controller="Assignment" asp-action="Details" asp-route-id="@assignment.Id"
                    class="list-group-item list-group-item-action assignment-item">
-                    <div class="d-flex w-100 justify-content-between">
+                    <div class="d-flex flex-column flex-sm-row justify-content-between">
                         <h5 class="mb-1 assignment-title">@assignment.Title</h5>
-                        <small>
-                            Due Date: @assignment.DueDate.ToString() <br />
-                            Close Date: @assignment.CloseDate.ToString()
+                        <small class="text-sm-end mt-2 mt-sm-0">
+                            @if (!string.IsNullOrWhiteSpace(assignment.DueDate.ToString()))
+                            {
+                                <div>Due Date: @assignment.DueDate.ToString()<br /></div>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(assignment.CloseDate.ToString()))
+                            {
+                                <div>Close Date: @assignment.CloseDate.ToString()</div>
+                            }
                         </small>
                     </div>
                     <p class="mb-1 assignment-instructions">@assignment.Instructions</p>
-                    <small>Posted: @assignment.PostedAt.ToString()</small>
+                    <small class="text-muted">Posted: @assignment.PostedAt.ToString()</small>
                 </a>
             }
         </div>
@@ -74,3 +78,27 @@
         });
     });
 </script>
+
+<style>
+    @@media (max-width: 576px) {
+        .section-header {
+            font-size: 1.25rem;
+        }
+
+        .assignment-title {
+            font-size: 1rem;
+        }
+
+        .assignment-instructions {
+            font-size: 0.95rem;
+        }
+
+        .search-parent {
+            width: 100%;
+        }
+
+        .list-group-item {
+            padding: 1rem;
+        }
+    }
+</style>

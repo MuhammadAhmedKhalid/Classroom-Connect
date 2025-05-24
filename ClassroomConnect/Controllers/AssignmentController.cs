@@ -1,6 +1,7 @@
 ﻿using Classroom.DataAccess.Repository.IRepository;
 using Classroom.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -8,9 +9,10 @@ using System.Security.Claims;
 namespace ClassroomConnect.Controllers
 {
     [Authorize]
-    public class AssignmentController(IUnitOfWork unitOfWork) : Controller
+    public class AssignmentController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment) : Controller
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IWebHostEnvironment _webHostEnvironment = webHostEnvironment;
 
         public IActionResult Create(int classId)
         {
@@ -147,7 +149,9 @@ namespace ClassroomConnect.Controllers
             {
                 return Json(new { success = false, message = "Assignment not found." });
             }
-            
+
+            DeleteSubmittedFiles(id);
+
             var classId = assignment.ClassId;
 
             _unitOfWork.Assignments.Remove(assignment);
@@ -165,6 +169,25 @@ namespace ClassroomConnect.Controllers
         }
 
         #region Helper methods
+
+        private void DeleteSubmittedFiles(int assignmentId)
+        {
+            List<AssignmentSubmission> assignmentSubmissions = _unitOfWork.AssignmentSubmissions.GetAll(s => s.AssignmentId == assignmentId).ToList();
+            
+            string uploadFolder = Path.Combine(_webHostEnvironment.WebRootPath, "submissions");
+            
+            foreach (var submission in assignmentSubmissions)
+            {
+                if (!string.IsNullOrEmpty(submission.FilePath))
+                {
+                    string filePath = Path.Combine(uploadFolder, submission.FilePath);
+                    if (System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.Delete(filePath);
+                    }
+                }
+            }
+        }
 
         private Assignment? GetAssignment(int? id)
         {

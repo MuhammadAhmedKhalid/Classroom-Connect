@@ -10,7 +10,6 @@ namespace ClassroomConnect.Controllers
     [Authorize]
     public class AssignmentSubmissionController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment) : Controller
     {
-
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IWebHostEnvironment _webHostEnvironment = webHostEnvironment;
 

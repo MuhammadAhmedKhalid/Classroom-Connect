@@ -13,18 +13,20 @@
     <div class="card-body">
         <div class="d-flex justify-content-between align-items-start mb-3">
             <h2 class="card-title">@Model.Title</h2>
-            <div>
+            <div class="d-none d-md-flex gap-2">
                 @if (isCreator)
                 {
-                    <a asp-action="Edit" asp-controller="Quiz" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-secondary me-2"><i class="bi bi-pencil-square"></i> Edit</a>
-
+                    <a asp-action="Details" asp-controller="QuizSubmission" asp-route-id="@Model.Id" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-collection"></i> View Submissions
+                    </a>
+                    <a asp-action="Edit" asp-controller="Quiz" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-pencil-square"></i> Edit
+                    </a>
                     <button class="btn btn-sm btn-outline-danger delete-button"
-                    data-url="@Url.Action("Delete", "Quiz", new { id = @Model.Id })"
-                    data-item-name="quiz">
+                            data-url="@Url.Action("Delete", "Quiz", new { id = @Model.Id })"
+                            data-item-name="quiz">
                         <i class="bi bi-trash"></i> Delete
                     </button>
-
-                    <a asp-action="Details" asp-controller="QuizSubmission" asp-route-id="@Model.Id" class="btn btn-outline-primary btn-sm">View Submissions</a>
                 }
             </div>
         </div>
@@ -34,6 +36,24 @@
         <p class="card-text"><strong>Close Date:</strong> @(Model.CloseDate.HasValue ? Model.CloseDate.Value.ToString("MMMM dd, yyyy hh:mm tt") : "Not set")</p>
         <p class="card-text"><strong>Posted At:</strong> @Model.PostedAt?.ToString("MMMM dd, yyyy hh:mm tt")</p>
         <p class="card-text"><strong>Class:</strong> @Model.Class?.Name</p>
+
+        <!-- Mobile buttons (hidden on desktop) -->
+        <div class="d-flex d-md-none justify-content-end gap-2 flex-wrap mt-3">
+            @if (isCreator)
+            {
+                <a asp-action="Details" asp-controller="QuizSubmission" asp-route-id="@Model.Id" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-collection"></i> <span class="d-none d-sm-inline">Submissions</span>
+                </a>
+                <a asp-action="Edit" asp-controller="Quiz" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-pencil-square"></i> <span class="d-none d-sm-inline">Edit</span>
+                </a>
+                <button class="btn btn-sm btn-outline-danger delete-button"
+                        data-url="@Url.Action("Delete", "Quiz", new { id = @Model.Id })"
+                        data-item-name="quiz">
+                    <i class="bi bi-trash"></i> <span class="d-none d-sm-inline">Delete</span>
+                </button>
+            }
+        </div>
     </div>
 </div>
 
@@ -76,7 +96,7 @@
                                     {
                                         @if (!string.IsNullOrWhiteSpace(Model.Questions[i].CorrectAnswer))
                                         {
-                                            <p class="fw-bold">Correct Answer: @Model.Questions[i].CorrectAnswer</p>
+                                            <p><strong>Answer: </strong>@Model.Questions[i].CorrectAnswer</p>
                                         }
                                         else
                                         {
